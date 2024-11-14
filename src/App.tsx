@@ -15,7 +15,15 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', width: '600px', height: 'fit-content' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        width: '600px',
+        height: 'fit-content',
+        maxHeight: '500px',
+        border: `2px solid #123412 !important`,
+      }}
+    >
       {/* Left Tab Section */}
       <TabsSection value={selectedTab} onTabChange={handleTabChange} />
 
