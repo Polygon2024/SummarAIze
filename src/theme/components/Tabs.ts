@@ -5,12 +5,10 @@ export const TabBaseStyle: CSSObject = {
   root: {
     minHeight: '0',
     height: 'fit-content',
-    maxWidth: '20px !important',
+    minWidth: 'fit-content',
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
-    // margin: '12px 8px 12px 0',
-    // padding: '12px 12px',
     m: 0,
     p: 0,
     justifyContent: 'flex-start',

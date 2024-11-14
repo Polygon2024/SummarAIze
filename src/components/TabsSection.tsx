@@ -21,7 +21,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
     <Box
       sx={{
         width: 'fit-content',
-        height: '100vh',
+        height: 'fit-content',
         backgroundColor: Blue.Blue7,
         display: 'flex',
         flexDirection: 'column',
@@ -46,7 +46,6 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
             // label={tab.label}
             icon={tab.icon}
             sx={{
-              width: '20px !important',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',

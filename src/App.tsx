@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import TabsSection from './components/TabsSection';
-import MainContent from './components/MainContent';
 import { Box } from '@mui/material';
 import Home from './components/Tabs/Home';
 import Prompt from './components/Tabs/Prompt';
@@ -16,7 +15,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', width: '450px', height: '600px' }}>
+    <Box sx={{ display: 'flex', width: '600px', height: 'fit-content' }}>
       {/* Left Tab Section */}
       <TabsSection value={selectedTab} onTabChange={handleTabChange} />
 
