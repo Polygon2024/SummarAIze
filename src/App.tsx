@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react';
 import TabsSection from './components/TabsSection';
 import { Box } from '@mui/material';
 import Home from './components/Tabs/Home';
-import Prompt from './components/Tabs/Prompt';
+import Summarize from './components/Tabs/Summarize';
 import Notes from './components/Tabs/Notes';
 import Translate from './components/Tabs/Translate';
 import Glossary from './components/Tabs/Glossary';
+import Settings from './components/Tabs/Settings';
 import { Resizable } from 're-resizable';
 
 const App: React.FC = () => {
@@ -40,10 +41,11 @@ const App: React.FC = () => {
         {/* Main Content Area */}
         <Box sx={{ flexGrow: 1, padding: 2 }}>
           {selectedTab === 0 && <Home />}
-          {selectedTab === 1 && <Prompt />}
+          {selectedTab === 1 && <Summarize />}
           {selectedTab === 2 && <Notes />}
           {selectedTab === 3 && <Translate />}
           {selectedTab === 4 && <Glossary />}
+          {selectedTab === 5 && <Settings />}
         </Box>
       </Box>
     </Resizable>

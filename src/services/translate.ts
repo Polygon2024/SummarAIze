@@ -1,11 +1,15 @@
-// @ts-ignore
-import supportedLanguages from '../data/supportedLanguages.json';
+import supportedLanguages from '../data/supportedLanguages';
 
 // @ts-ignore
 const canDetect = await translation.canDetect();
 
 // @ts-ignore
 const detector = await translation.createDetector();
+
+export const isTranslatorAPISupported = () => {
+  // @ts-ignore: Ignore "Cannot find name 'translation'" error
+  return 'translation' in self && 'createTranslator' in self.translation;
+};
 
 // Check if the language is supported for translation
 const codeToSupportedLanguage = (code: string) => {
@@ -29,4 +33,29 @@ export const detectLanguageCode = async (text: string) => {
     : 'Cannot Detect';
 };
 
+export const createTranslator = async (
+  sourceLanguage: string,
+  targetLanguage: string
+) => {
+  if (
+    !(
+      isTranslatorAPISupported() &&
+      // @ts-ignore: Ignore "Cannot find name 'translation'" error
+      (await translation.canTranslate({
+        sourceLanguage: sourceLanguage,
+        targetLanguage: targetLanguage,
+      }))
+    )
+  ) {
+    console.log(
+      `Unable to translate due to either (1) Translator API or (2) translation from ${sourceLanguage} to ${targetLanguage} is not supported`
+    );
+    return null;
+  }
 
+  // @ts-ignore: Ignore "Cannot find name 'translation'" error
+  return await self.translation.createTranslator({
+    sourceLanguage: sourceLanguage,
+    targetLanguage: targetLanguage,
+  });
+};
