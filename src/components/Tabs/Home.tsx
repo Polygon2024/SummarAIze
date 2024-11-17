@@ -9,9 +9,12 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import SummarisedText from '../Prompt/SummarisedText';
-import { Launch, Send, Sync, Tune } from '@mui/icons-material';
+import { ContentCopy, Launch, Send, Sync, Tune } from '@mui/icons-material';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -61,6 +64,11 @@ const Home: React.FC = () => {
   const [editableText, setEditableText] = useState<string>('');
 
   const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
+    'success'
+  );
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
   const SummariserDropdownStyle = {
     width: '140px',
@@ -70,6 +78,28 @@ const Home: React.FC = () => {
   // Handler for editable text change
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEditableText(event.target.value);
+  };
+
+  // Function to copy text to the clipboard
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
+
+  // Close Snackbar
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
   useEffect(() => {
@@ -128,11 +158,32 @@ const Home: React.FC = () => {
           multiline
           maxRows={8}
           variant='outlined'
-          onChange={handleTextChange}
           // value={latestEntry !== null ? latestEntry?.summary : ''}
           value={testContent}
           id='summarized'
+          sx={{
+            '& textarea': {
+              caretColor: 'transparent', // Hides the typing indicator (caret) for multiline TextField
+            },
+          }}
         />
+
+        {/* Link to copy summarized text */}
+        <Box
+          sx={{
+            textAlign: 'right',
+            mt: '0 !important',
+          }}
+        >
+          <Tooltip title='Copy Content'>
+            <IconButton
+              size='small'
+              onClick={() => copyToClipboard('Your summarized text here')}
+            >
+              <ContentCopy fontSize='inherit' />
+            </IconButton>
+          </Tooltip>
+        </Box>
       </Stack>
 
       {/* Bottom section */}
@@ -145,7 +196,13 @@ const Home: React.FC = () => {
       >
         {/* Dropdowns for AISummarizerType, AISummarizerFormat, AISummarizerLength */}
         {showSumSettings && (
-          <Box sx={{ display: 'flex', gap: 0.5, width: '100%' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 0.5,
+              width: '100%',
+            }}
+          >
             {/* AISummarizerType Dropdown */}
             <FormControl>
               <Select
@@ -274,6 +331,27 @@ const Home: React.FC = () => {
           </Box>
         </Box>
       </Stack>
+
+      {/* Snackbar for copy success */}
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '100%',
+        }}
+      >
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+        >
+          <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+      </Box>
     </Stack>
   );
 };
