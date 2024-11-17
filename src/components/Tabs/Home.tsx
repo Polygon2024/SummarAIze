@@ -12,9 +12,14 @@ import {
   Link,
   Snackbar,
   Alert,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
 } from '@mui/material';
-import SummarisedText from '../Prompt/SummarisedText';
 import {
+  Close,
   ContentCopy,
   DownloadForOffline,
   Launch,
@@ -165,12 +170,12 @@ const Home: React.FC = () => {
           multiline
           maxRows={8}
           variant='outlined'
-          // value={latestEntry !== null ? latestEntry?.summary : ''}
-          value={testContent}
+          value={latestEntry ? latestEntry.summary : ''}
           id='summarized'
           sx={{
             '& textarea': {
-              caretColor: 'transparent', // Hides the typing indicator (caret) for multiline TextField
+              // Hides the typing indicator (caret) for multiline TextField
+              caretColor: 'transparent',
             },
           }}
         />
@@ -185,7 +190,8 @@ const Home: React.FC = () => {
           <Tooltip title='Copy Content'>
             <IconButton
               size='small'
-              onClick={() => copyToClipboard('Your summarized text here')}
+              onClick={() => copyToClipboard(latestEntry!.summary)}
+              disabled={!latestEntry}
             >
               <ContentCopy fontSize='inherit' />
             </IconButton>
@@ -201,74 +207,6 @@ const Home: React.FC = () => {
           bottom: 0,
         }}
       >
-        {/* Dropdowns for AISummarizerType, AISummarizerFormat, AISummarizerLength */}
-        {showSumSettings && (
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 0.5,
-              width: '100%',
-            }}
-          >
-            {/* AISummarizerType Dropdown */}
-            <FormControl>
-              <Select
-                labelId='summarizer-type-select-label'
-                id='summarizer-type-select'
-                value={summarizerType}
-                onChange={(e) =>
-                  setSummarizerType(e.target.value as AISummarizerType)
-                }
-                sx={SummariserDropdownStyle}
-              >
-                {Object.values(AISummarizerType).map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* AISummarizerFormat Dropdown */}
-            <FormControl>
-              <Select
-                labelId='summarizer-format-select-label'
-                id='summarizer-format-select'
-                value={summarizerFormat}
-                onChange={(e) =>
-                  setSummarizerFormat(e.target.value as AISummarizerFormat)
-                }
-                sx={SummariserDropdownStyle}
-              >
-                {Object.values(AISummarizerFormat).map((format) => (
-                  <MenuItem key={format} value={format}>
-                    {format}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-
-            {/* AISummarizerLength Dropdown */}
-            <FormControl>
-              <Select
-                labelId='summarizer-length-select-label'
-                id='summarizer-length-select'
-                value={summarizerLength}
-                onChange={(e) =>
-                  setSummarizerLength(e.target.value as AISummarizerLength)
-                }
-                sx={SummariserDropdownStyle}
-              >
-                {Object.values(AISummarizerLength).map((length) => (
-                  <MenuItem key={length} value={length}>
-                    {length}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-        )}
-
         {/* Input Text Field */}
         <TextField
           fullWidth
@@ -322,9 +260,14 @@ const Home: React.FC = () => {
 
             {/* Toggle Summarizer Settings */}
             <Tooltip title='Summarizer Settings'>
-              <IconButton onClick={() => setShowSumSettings(!showSumSettings)}>
-                <Tune color={showSumSettings ? 'success' : 'inherit'} />
-              </IconButton>
+              <Tooltip title='Summarizer Settings'>
+                <IconButton
+                  onClick={() => setShowSumSettings(true)}
+                  color='primary'
+                >
+                  <Tune />
+                </IconButton>
+              </Tooltip>
             </Tooltip>
           </Box>
 
@@ -347,26 +290,94 @@ const Home: React.FC = () => {
         </Box>
       </Stack>
 
+      {/* Dialog for Summarizer Settings */}
+      <Dialog open={showSumSettings} onClose={() => setShowSumSettings(false)}>
+        <DialogTitle>Summarizer Settings</DialogTitle>
+        <DialogContent>
+          <Stack spacing={2} sx={{ alignItems: 'center' }}>
+            <FormControl>
+              <Select
+                labelId='summarizer-type-select-label'
+                id='summarizer-type-select'
+                value={summarizerType}
+                onChange={(e) =>
+                  setSummarizerType(e.target.value as AISummarizerType)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerType).map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <Select
+                labelId='summarizer-format-select-label'
+                id='summarizer-format-select'
+                value={summarizerFormat}
+                onChange={(e) =>
+                  setSummarizerFormat(e.target.value as AISummarizerFormat)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerFormat).map((format) => (
+                  <MenuItem key={format} value={format}>
+                    {format}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <Select
+                labelId='summarizer-length-select-label'
+                id='summarizer-length-select'
+                value={summarizerLength}
+                onChange={(e) =>
+                  setSummarizerLength(e.target.value as AISummarizerLength)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerLength).map((length) => (
+                  <MenuItem key={length} value={length}>
+                    {length}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            variant='contained'
+            color='success'
+            onClick={() => setShowSumSettings(false)}
+          >
+            Save Settings
+          </Button>
+          <Button
+            variant='contained'
+            color='error'
+            onClick={() => setShowSumSettings(false)}
+          >
+            <Close />
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Snackbar for copy success */}
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '100%',
-        }}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
       >
-        <Snackbar
-          open={openSnackbar}
-          autoHideDuration={6000}
-          onClose={handleCloseSnackbar}
-        >
-          <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
-            {snackbarMessage}
-          </Alert>
-        </Snackbar>
-      </Box>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };
