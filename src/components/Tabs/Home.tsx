@@ -14,7 +14,14 @@ import {
   Alert,
 } from '@mui/material';
 import SummarisedText from '../Prompt/SummarisedText';
-import { ContentCopy, Launch, Send, Sync, Tune } from '@mui/icons-material';
+import {
+  ContentCopy,
+  DownloadForOffline,
+  Launch,
+  Send,
+  Sync,
+  Tune,
+} from '@mui/icons-material';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -323,6 +330,14 @@ const Home: React.FC = () => {
 
           {/* Right-aligned Summarise icon */}
           <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {/* Download Document */}
+            <Tooltip title='Download as Word Document'>
+              <IconButton>
+                <DownloadForOffline />
+              </IconButton>
+            </Tooltip>
+
+            {/* AI Summarising */}
             <Tooltip title='Summarise'>
               <IconButton>
                 <Send />
