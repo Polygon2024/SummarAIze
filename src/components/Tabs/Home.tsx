@@ -9,8 +9,6 @@ import {
   FormControl,
   Select,
   MenuItem,
-  FormHelperText,
-  InputLabel,
 } from '@mui/material';
 import SelectedText from '../Prompt/SelectedText';
 import { Launch, Send, Sync } from '@mui/icons-material';

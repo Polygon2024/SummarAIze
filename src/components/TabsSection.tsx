@@ -21,7 +21,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
     <Box
       sx={{
         width: 'fit-content',
-        height: 'fit-content',
+        height: '100%',
         backgroundColor: Blue.Blue7,
         display: 'flex',
         flexDirection: 'column',
