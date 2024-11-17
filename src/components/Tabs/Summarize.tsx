@@ -9,7 +9,6 @@ import {
   FormControl,
   Select,
   MenuItem,
-  Link,
   Snackbar,
   Alert,
   Dialog,
@@ -27,6 +26,7 @@ import {
   Sync,
   Tune,
 } from '@mui/icons-material';
+import { handleSummarization } from '../../services/summarize';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -57,10 +57,6 @@ const testContent = `A complex issue Climate change impacts our society in many 
 `;
 
 const Home: React.FC = () => {
-  const [model, setModel] = useState<any>([]);
-  const [error, setError] = useState(false);
-  const [disabled, setDisabled] = useState(false);
-
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
 
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
@@ -112,6 +108,11 @@ const Home: React.FC = () => {
   // Close Snackbar
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
+  };
+
+  // Summarising Text Input
+  const handleSummarise = async () => {
+    await handleSummarization(editableText, '');
   };
 
   useEffect(() => {
@@ -282,7 +283,7 @@ const Home: React.FC = () => {
 
             {/* AI Summarising */}
             <Tooltip title='Summarise'>
-              <IconButton>
+              <IconButton onClick={handleSummarise}>
                 <Send />
               </IconButton>
             </Tooltip>
