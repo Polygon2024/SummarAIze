@@ -10,8 +10,8 @@ import {
   Select,
   MenuItem,
 } from '@mui/material';
-import SelectedText from '../Prompt/SelectedText';
-import { Launch, Send, Sync } from '@mui/icons-material';
+import SummarisedText from '../Prompt/SummarisedText';
+import { Launch, Send, Sync, Tune } from '@mui/icons-material';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -38,6 +38,9 @@ type LatestEntry = {
   summary: string;
 } | null;
 
+const testContent = `A complex issue Climate change impacts our society in many different ways. Drought can harm food production and human health. Flooding can lead to spread of disease, death, and damage ecosystems and infrastructure. Human health issues that result from drought, flooding, and other weather conditions increase the death rate, change food availability, and limit how much a worker can get done, and ultimately the productivity of our economy. Climate change affects everyone, but the impacts are uneven across the country and around the world. Even within one community, climate change can affect one neighborhood or person more than another. Long-standing differences in income and opportunity, or socioeconomic inequalities, can make some groups more vulnerable. Communities that have less access to resources to protect themselves or cope with impacts are often the same communities that are also more exposed to hazards.
+`;
+
 const Home: React.FC = () => {
   const [model, setModel] = useState<any>([]);
   const [error, setError] = useState(false);
@@ -55,9 +58,18 @@ const Home: React.FC = () => {
     AISummarizerLength['medium']
   );
 
+  const [editableText, setEditableText] = useState<string>('');
+
+  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
+
   const SummariserDropdownStyle = {
     width: '140px',
     height: '28px',
+  };
+
+  // Handler for editable text change
+  const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEditableText(event.target.value);
   };
 
   useEffect(() => {
@@ -78,6 +90,7 @@ const Home: React.FC = () => {
 
         console.log('Latest entry retrieved:', latest);
         setLatestEntry(latest);
+        setEditableText(latest.text);
       } catch (error) {
         console.error('Error retrieving latest entry:', error);
       }
@@ -88,93 +101,127 @@ const Home: React.FC = () => {
 
   return (
     <Stack
-      spacing={1}
+      spacing={0}
       sx={{
         display: 'flex',
+        flexDirection: 'column',
         justifyContent: 'space-between',
-        alignItems: 'center',
         height: '100%',
       }}
     >
-      {/* Dropdowns for AISummarizerType, AISummarizerFormat, AISummarizerLength */}
-      <Typography variant='body1'>Summarizer Options</Typography>
+      {/* Top section */}
+      <Stack spacing={1}>
+        {/* Title */}
+        <Typography
+          variant='h6'
+          sx={{
+            width: '100%',
+            textAlign: 'center',
+            textDecoration: 'underline',
+          }}
+        >
+          Summarizer
+        </Typography>
+        {/* Summarised Text Field */}
+        <TextField
+          fullWidth
+          multiline
+          maxRows={8}
+          variant='outlined'
+          onChange={handleTextChange}
+          // value={latestEntry !== null ? latestEntry?.summary : ''}
+          value={testContent}
+          id='summarized'
+        />
+      </Stack>
 
-      <Box sx={{ display: 'flex', gap: 0.5, width: '100%' }}>
-        {/* AISummarizerType Dropdown */}
-        <FormControl fullWidth>
-          <Select
-            labelId='summarizer-type-select-label'
-            id='summarizer-type-select'
-            value={summarizerType}
-            onChange={(e) =>
-              setSummarizerType(e.target.value as AISummarizerType)
-            }
-            sx={SummariserDropdownStyle}
-          >
-            {Object.values(AISummarizerType).map((type) => (
-              <MenuItem key={type} value={type}>
-                {type}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* AISummarizerFormat Dropdown */}
-        <FormControl fullWidth>
-          <Select
-            labelId='summarizer-format-select-label'
-            id='summarizer-format-select'
-            value={summarizerFormat}
-            onChange={(e) =>
-              setSummarizerFormat(e.target.value as AISummarizerFormat)
-            }
-            sx={SummariserDropdownStyle}
-          >
-            {Object.values(AISummarizerFormat).map((format) => (
-              <MenuItem key={format} value={format}>
-                {format}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-
-        {/* AISummarizerLength Dropdown */}
-        <FormControl fullWidth>
-          <Select
-            labelId='summarizer-length-select-label'
-            id='summarizer-length-select'
-            value={summarizerLength}
-            onChange={(e) =>
-              setSummarizerLength(e.target.value as AISummarizerLength)
-            }
-            sx={SummariserDropdownStyle}
-          >
-            {Object.values(AISummarizerLength).map((length) => (
-              <MenuItem key={length} value={length}>
-                {length}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      <SelectedText />
-
+      {/* Bottom section */}
       <Stack
         spacing={0.5}
         sx={{
-          width: '100%',
+          display: 'absolute',
+          bottom: 0,
         }}
       >
+        {/* Dropdowns for AISummarizerType, AISummarizerFormat, AISummarizerLength */}
+        {showSumSettings && (
+          <Box sx={{ display: 'flex', gap: 0.5, width: '100%' }}>
+            {/* AISummarizerType Dropdown */}
+            <FormControl>
+              <Select
+                labelId='summarizer-type-select-label'
+                id='summarizer-type-select'
+                value={summarizerType}
+                onChange={(e) =>
+                  setSummarizerType(e.target.value as AISummarizerType)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerType).map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* AISummarizerFormat Dropdown */}
+            <FormControl>
+              <Select
+                labelId='summarizer-format-select-label'
+                id='summarizer-format-select'
+                value={summarizerFormat}
+                onChange={(e) =>
+                  setSummarizerFormat(e.target.value as AISummarizerFormat)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerFormat).map((format) => (
+                  <MenuItem key={format} value={format}>
+                    {format}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            {/* AISummarizerLength Dropdown */}
+            <FormControl>
+              <Select
+                labelId='summarizer-length-select-label'
+                id='summarizer-length-select'
+                value={summarizerLength}
+                onChange={(e) =>
+                  setSummarizerLength(e.target.value as AISummarizerLength)
+                }
+                sx={SummariserDropdownStyle}
+              >
+                {Object.values(AISummarizerLength).map((length) => (
+                  <MenuItem key={length} value={length}>
+                    {length}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+        )}
+
         {/* Input Text Field */}
         <TextField
           fullWidth
           multiline
-          maxRows={2}
+          maxRows={3}
           variant='outlined'
-          value={latestEntry !== null ? latestEntry.text : ''}
+          onChange={handleTextChange}
+          value={editableText !== null ? editableText : ''}
           placeholder={'Enter a paragraph here'}
           id='prompt'
+          sx={{
+            borderRadius: '15px',
+            width: '100%',
+            '& .MuiInputBase-root': {
+              borderRadius: '15px',
+            },
+          }}
         />
 
         {/* Icon Buttons */}
@@ -188,11 +235,14 @@ const Home: React.FC = () => {
         >
           {/* Left-aligned icons */}
           <Box sx={{ display: 'flex', gap: 0.5 }}>
+            {/* TODO: Syncing Summary  */}
             <Tooltip title='Sync summaries'>
               <IconButton disabled={latestEntry === null}>
                 <Sync />
               </IconButton>
             </Tooltip>
+
+            {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
                 disabled={latestEntry === null}
@@ -203,6 +253,13 @@ const Home: React.FC = () => {
                 }}
               >
                 <Launch />
+              </IconButton>
+            </Tooltip>
+
+            {/* Toggle Summarizer Settings */}
+            <Tooltip title='Summarizer Settings'>
+              <IconButton onClick={() => setShowSumSettings(!showSumSettings)}>
+                <Tune color={showSumSettings ? 'success' : 'inherit'} />
               </IconButton>
             </Tooltip>
           </Box>
