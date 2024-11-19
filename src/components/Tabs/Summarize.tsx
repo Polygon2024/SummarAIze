@@ -56,7 +56,11 @@ type LatestEntry = {
 const testContent = `A complex issue Climate change impacts our society in many different ways. Drought can harm food production and human health. Flooding can lead to spread of disease, death, and damage ecosystems and infrastructure. Human health issues that result from drought, flooding, and other weather conditions increase the death rate, change food availability, and limit how much a worker can get done, and ultimately the productivity of our economy. Climate change affects everyone, but the impacts are uneven across the country and around the world. Even within one community, climate change can affect one neighborhood or person more than another. Long-standing differences in income and opportunity, or socioeconomic inequalities, can make some groups more vulnerable. Communities that have less access to resources to protect themselves or cope with impacts are often the same communities that are also more exposed to hazards.
 `;
 
-const Home: React.FC = () => {
+interface SummarizeProps {
+  selectedText?: string; // selectedText is optional
+}
+
+const Summarize: React.FC<SummarizeProps> = ({ selectedText }) => {
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
 
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
@@ -383,4 +387,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;
+export default Summarize;

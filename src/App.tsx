@@ -7,48 +7,51 @@ import Notes from './components/Tabs/Notes';
 import Translate from './components/Tabs/Translate';
 import Glossary from './components/Tabs/Glossary';
 import Settings from './components/Tabs/Settings';
-import { Resizable } from 're-resizable';
 
 const App: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0);
+  const [selectedText, setSelectedText] = useState<string>('');
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setSelectedTab(newValue);
   };
 
-  return (
-    <Resizable
-      defaultSize={{
-        width: 600,
-        height: 500,
-      }}
-      minWidth={400}
-      minHeight={500}
-      maxWidth={'80vw'}
-      maxHeight={'90vh'}
-    >
-      <Box
-        sx={{
-          display: 'flex',
-          width: '100%',
-          height: '100%',
-          border: `2px solid #123412 !important`,
-        }}
-      >
-        {/* Left Tab Section */}
-        <TabsSection value={selectedTab} onTabChange={handleTabChange} />
+  useEffect(() => {
+    // Check if a specific tab should be opened
+    chrome.storage.local.get(['openTab'], (result) => {
+      setSelectedText(result.selectedText);
+      if (result.openTab === 'summarizer') {
+        setSelectedTab(1);
+      } else if (result.openTab === 'writer/rewriter') {
+        setSelectedTab(2);
+      }
+      chrome.storage.local.remove('openTab');
+    });
+  }, []);
 
-        {/* Main Content Area */}
-        <Box sx={{ flexGrow: 1, padding: 2 }}>
-          {selectedTab === 0 && <Home />}
-          {selectedTab === 1 && <Summarize />}
-          {selectedTab === 2 && <Notes />}
-          {selectedTab === 3 && <Translate />}
-          {selectedTab === 4 && <Glossary />}
-          {selectedTab === 5 && <Settings />}
-        </Box>
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        minWidth: '600px',
+        minHeight: '500px',
+        width: '100vw',
+        height: '100vh',
+      }}
+    >
+      {/* Left Tab Section */}
+      <TabsSection value={selectedTab} onTabChange={handleTabChange} />
+
+      {/* Main Content Area */}
+      <Box sx={{ flexGrow: 1, padding: 2 }}>
+        {selectedTab === 0 && <Home />}
+        {selectedTab === 1 && <Summarize selectedText={selectedText} />}
+        {selectedTab === 2 && <Notes />}
+        {selectedTab === 3 && <Translate />}
+        {selectedTab === 4 && <Glossary />}
+        {selectedTab === 5 && <Settings />}
       </Box>
-    </Resizable>
+    </Box>
   );
 };
 

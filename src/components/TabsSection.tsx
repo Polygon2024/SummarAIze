@@ -36,7 +36,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
         backgroundColor: Blue.Blue7,
         display: 'relative',
         alignItems: 'center',
-        paddingTop: '20px',
+        paddingTops: '20px',
         px: '4px',
       }}
     >
