@@ -1,12 +1,12 @@
 import React from 'react';
-import { Box, Tab, Tabs } from '@mui/material';
+import { Box, Tab, Tabs, Tooltip } from '@mui/material';
 import {
   Home,
   Settings,
   FormatListBulleted,
-  EditNote,
   Inventory,
   Cloud,
+  DriveFileRenameOutline,
 } from '@mui/icons-material';
 import { Blue } from '../theme/color';
 
@@ -18,7 +18,10 @@ interface TabsSectionProps {
 const mainTabs = [
   { label: 'Home', icon: <Home fontSize='small' /> },
   { label: 'Summarizer', icon: <FormatListBulleted fontSize='small' /> },
-  { label: 'Writer / Rewriter', icon: <EditNote fontSize='small' /> },
+  {
+    label: 'Writer / Rewriter',
+    icon: <DriveFileRenameOutline fontSize='small' />,
+  },
   { label: 'Local Storage', icon: <Inventory fontSize='small' /> },
   { label: 'Sync Storage', icon: <Cloud fontSize='small' /> },
 ];
@@ -31,6 +34,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
   return (
     <Box
       sx={{
+        position: 'fixed',
         width: 'fit-content',
         height: '100%',
         backgroundColor: Blue.Blue7,
@@ -56,75 +60,79 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
       >
         {/* Render main tabs */}
         {mainTabs.map((tab, index) => (
-          <Tab
-            key={index}
-            icon={tab.icon}
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              typography: 'body2',
-              fontSize: '12px',
-              my: 1,
-              p: 0.5,
-              py: 1,
-              color: value === index ? Blue.Blue1 : Blue.Blue3,
-              backgroundColor:
-                value === index ? `${Blue.Blue4} !important` : 'none',
-              '&:hover': {
-                color: value === index ? Blue.Blue1 : Blue.Blue6,
-                backgroundColor: Blue.Blue5,
-              },
-              '& .MuiTab-wrapper': {
+          <Tooltip title={tab.label} placement='right' arrow>
+            <Tab
+              key={index}
+              icon={tab.icon}
+              sx={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-              },
-              '& .MuiTab-icon': {
-                mr: '0 !important',
-                mb: '4px !important',
-              },
-            }}
-          />
+                typography: 'body2',
+                fontSize: '12px',
+                my: 1,
+                p: 0.5,
+                py: 1,
+                color: value === index ? Blue.Blue1 : Blue.Blue3,
+                backgroundColor:
+                  value === index ? `${Blue.Blue4} !important` : 'none',
+                '&:hover': {
+                  color: value === index ? Blue.Blue1 : Blue.Blue6,
+                  backgroundColor: Blue.Blue5,
+                },
+                '& .MuiTab-wrapper': {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                },
+                '& .MuiTab-icon': {
+                  mr: '0 !important',
+                  mb: '4px !important',
+                },
+              }}
+            />
+          </Tooltip>
         ))}
 
         {/* Render the Settings tab at the bottom */}
         {settingsTab.map((tab, index) => (
-          <Tab
-            key={index}
-            icon={tab.icon}
-            sx={{
-              position: 'absolute',
-              bottom: 0,
-              flexDirection: 'column',
-              alignItems: 'center',
-              typography: 'body2',
-              fontSize: '12px',
-              my: 1,
-              p: 0.5,
-              py: 1,
-              color:
-                value === mainTabs.length + index ? Blue.Blue1 : Blue.Blue3,
-              backgroundColor:
-                value === mainTabs.length + index
-                  ? `${Blue.Blue4} !important`
-                  : 'none',
-              '&:hover': {
-                color:
-                  value === mainTabs.length + index ? Blue.Blue1 : Blue.Blue6,
-                backgroundColor: Blue.Blue5,
-              },
-              '& .MuiTab-wrapper': {
-                display: 'flex',
+          <Tooltip title={tab.label} placement='right' arrow>
+            <Tab
+              key={index}
+              icon={tab.icon}
+              sx={{
+                position: 'absolute',
+                bottom: 0,
                 flexDirection: 'column',
                 alignItems: 'center',
-              },
-              '& .MuiTab-icon': {
-                mr: '0 !important',
-                mb: '4px !important',
-              },
-            }}
-          />
+                typography: 'body2',
+                fontSize: '12px',
+                my: 1,
+                p: 0.5,
+                py: 1,
+                color:
+                  value === mainTabs.length + index ? Blue.Blue1 : Blue.Blue3,
+                backgroundColor:
+                  value === mainTabs.length + index
+                    ? `${Blue.Blue4} !important`
+                    : 'none',
+                '&:hover': {
+                  color:
+                    value === mainTabs.length + index ? Blue.Blue1 : Blue.Blue6,
+                  backgroundColor: Blue.Blue5,
+                },
+                '& .MuiTab-wrapper': {
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                },
+                '& .MuiTab-icon': {
+                  mr: '0 !important',
+                  mb: '4px !important',
+                },
+              }}
+            />
+          </Tooltip>
         ))}
       </Tabs>
     </Box>

@@ -86,7 +86,6 @@ const Settings: React.FC = () => {
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          height: '100vh',
         }}
       >
         <CircularProgress />
@@ -100,7 +99,6 @@ const Settings: React.FC = () => {
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        height: '100%',
       }}
     >
       {/* Translation Switch */}
