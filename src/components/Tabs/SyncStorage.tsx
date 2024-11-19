@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-const Notes: React.FC = () => {
+const SyncStorage: React.FC = () => {
   return (
     <Box
       sx={{
@@ -11,9 +11,9 @@ const Notes: React.FC = () => {
         height: '100%',
       }}
     >
-      <Typography variant='h1'>Notes</Typography>
+      <Typography variant='h1'>Glossary</Typography>
     </Box>
   );
 };
 
-export default Notes;
+export default SyncStorage;

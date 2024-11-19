@@ -3,9 +3,9 @@ import TabsSection from './components/TabsSection';
 import { Box } from '@mui/material';
 import Home from './components/Tabs/Home';
 import Summarize from './components/Tabs/Summarize';
-import Notes from './components/Tabs/Notes';
-import Translate from './components/Tabs/Translate';
-import Glossary from './components/Tabs/Glossary';
+import WriterRewriter from './components/Tabs/WriterRewriter';
+import LocalStorage from './components/Tabs/LocalStorage';
+import SyncStorage from './components/Tabs/SyncStorage';
 import Settings from './components/Tabs/Settings';
 
 const App: React.FC = () => {
@@ -46,9 +46,9 @@ const App: React.FC = () => {
       <Box sx={{ flexGrow: 1, padding: 2 }}>
         {selectedTab === 0 && <Home />}
         {selectedTab === 1 && <Summarize selectedText={selectedText} />}
-        {selectedTab === 2 && <Notes />}
-        {selectedTab === 3 && <Translate />}
-        {selectedTab === 4 && <Glossary />}
+        {selectedTab === 2 && <WriterRewriter />}
+        {selectedTab === 3 && <LocalStorage />}
+        {selectedTab === 4 && <SyncStorage />}
         {selectedTab === 5 && <Settings />}
       </Box>
     </Box>

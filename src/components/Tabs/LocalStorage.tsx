@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-const Translate: React.FC = () => {
+const LocalStorage: React.FC = () => {
   return (
     <Box
       sx={{
@@ -16,4 +16,4 @@ const Translate: React.FC = () => {
   );
 };
 
-export default Translate;
+export default LocalStorage;

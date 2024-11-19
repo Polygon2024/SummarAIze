@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-const Glossary: React.FC = () => {
+const WriterRewriter: React.FC = () => {
   return (
     <Box
       sx={{
@@ -11,9 +11,9 @@ const Glossary: React.FC = () => {
         height: '100%',
       }}
     >
-      <Typography variant='h1'>Glossary</Typography>
+      <Typography variant='h1'>Notes</Typography>
     </Box>
   );
 };
 
-export default Glossary;
+export default WriterRewriter;

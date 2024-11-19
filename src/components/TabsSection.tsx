@@ -2,11 +2,11 @@ import React from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import {
   Home,
-  NoteAdd,
-  Translate,
-  Book,
   Settings,
   FormatListBulleted,
+  EditNote,
+  Inventory,
+  Cloud,
 } from '@mui/icons-material';
 import { Blue } from '../theme/color';
 
@@ -17,10 +17,10 @@ interface TabsSectionProps {
 
 const mainTabs = [
   { label: 'Home', icon: <Home fontSize='small' /> },
-  { label: 'Summarize', icon: <FormatListBulleted fontSize='small' /> },
-  { label: 'Notes', icon: <NoteAdd fontSize='small' /> },
-  { label: 'Translate', icon: <Translate fontSize='small' /> },
-  { label: 'Glossary', icon: <Book fontSize='small' /> },
+  { label: 'Summarizer', icon: <FormatListBulleted fontSize='small' /> },
+  { label: 'Writer / Rewriter', icon: <EditNote fontSize='small' /> },
+  { label: 'Local Storage', icon: <Inventory fontSize='small' /> },
+  { label: 'Sync Storage', icon: <Cloud fontSize='small' /> },
 ];
 
 const settingsTab = [
