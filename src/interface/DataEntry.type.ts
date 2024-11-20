@@ -4,6 +4,7 @@ export default interface DataEntry {
   page: string;
   text: string;
   timestamp: number;
+  isSynced: boolean;
 
   // Optional Entries
   summary?: string;

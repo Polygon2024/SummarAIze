@@ -37,3 +37,28 @@ export const updateUserSettings = async (
   const updatedSettings: UserSettings = { ...currentSettings, ...newSettings };
   saveUserSettings(updatedSettings);
 };
+
+export const getTranslationOn = () =>
+  new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['userSettings'], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError); // Reject the promise on error
+      } else {
+        const translationOn = result?.userSettings?.translationOn ?? false;
+        resolve(translationOn); // Resolve the promise with the value of translationOn
+      }
+    });
+  });
+
+export const getPreferredLanguage = (): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.sync.get(['userSettings'], (result) => {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError); // Reject the promise on error
+      } else {
+        const preferredLanguage: string = result?.userSettings?.preferredLanguage ?? 'en';
+        resolve(preferredLanguage); // Resolve the promise with the value of preferredLanguage
+      }
+    });
+  });
+};

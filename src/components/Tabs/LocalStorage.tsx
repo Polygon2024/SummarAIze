@@ -98,13 +98,6 @@ const LocalStorage: React.FC = () => {
         // Validate the entries
         const validEntries = entries.filter(isValidDataEntry);
 
-        if (validEntries.length === 0) {
-          setAlertMessage('No valid entries found.');
-          setAlertSeverity('info');
-          setAlertOpen(true);
-          return;
-        }
-
         setAllEntries(validEntries);
       } catch (error) {
         console.error('Error retrieving entries:', error);
@@ -186,6 +179,17 @@ const LocalStorage: React.FC = () => {
     try {
       // Ensure the timestamp is converted to a string for proper key usage
       const result = await chrome.storage.local.get(timestamp.toString());
+
+      // Update the synced value of the retrieved entry
+      const updatedEntry = {
+        ...result[timestamp.toString()],
+        isSynced: true,
+      };
+
+      // Save the updated entry back to Chrome Storage
+      await chrome.storage.local.set({
+        [timestamp.toString()]: updatedEntry,
+      });
 
       if (result[timestamp.toString()]) {
         const entryToSync = result[timestamp.toString()];
@@ -348,14 +352,24 @@ const LocalStorage: React.FC = () => {
 
                   {/* Sync and Delete Options */}
                   <Box>
-                    {/* Sync Data to Storage */}
-                    <Tooltip title='Sync Data Entry'>
+                    <Tooltip
+                      title={
+                        entry.isSynced
+                          ? 'Data Entry is already Synced'
+                          : 'Sync Data Entry'
+                      }
+                    >
+                      {/* Sync Data to Storage */}
                       <IconButton
                         onClick={(event) =>
                           handleSyncEntry(entry.timestamp, event)
                         }
+                        disabled={entry.isSynced}
                       >
-                        <Sync fontSize='small' />
+                        <Sync
+                          fontSize='small'
+                          color={entry.isSynced ? 'success' : 'info'}
+                        />
                       </IconButton>
                     </Tooltip>
 

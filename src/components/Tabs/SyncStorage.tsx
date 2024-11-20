@@ -73,13 +73,6 @@ const LocalStorage: React.FC = () => {
         // Validate the entries
         const validEntries = entries.filter(isValidDataEntry);
 
-        if (validEntries.length === 0) {
-          setAlertMessage('No valid entries found.');
-          setAlertSeverity('info');
-          setAlertOpen(true);
-          return;
-        }
-
         setAllEntries(validEntries);
       } catch (error) {
         console.error('Error retrieving entries:', error);

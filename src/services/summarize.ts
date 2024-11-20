@@ -1,3 +1,8 @@
+import DataEntry from '../interface/DataEntry.type';
+import { detectLanguageCode, createTranslator } from './translate';
+import { getTranslationOn, getPreferredLanguage } from './setting';
+import ErrorCode from '../interface/ErrorCode';
+
 let cachedContext: string | null = null;
 let cachedSummarizer: any | null = null;
 
@@ -14,7 +19,8 @@ export const getPageTitle = async (): Promise<string> => {
 export const createSummarizer = async (
   context: string,
   type: string,
-  length: string
+  length: string,
+  title: string
 ) => {
   // Only create a new summarizer if the context has changed
   if (cachedContext !== context) {
@@ -25,6 +31,7 @@ export const createSummarizer = async (
       sharedContext: context,
       type,
       length,
+      title,
     });
 
     console.log('New summarizer instantiated with context:', context);
@@ -35,35 +42,102 @@ export const createSummarizer = async (
   return cachedSummarizer;
 };
 
-// Function to handle summarization
-export const handleSummarization = async (
+export const storeSummary = async (
+  title: string,
   selectionText: string,
-  pageUrl: string
+  pageUrl: string,
+  summary: string,
+  translatedText: string = '',
+  languageDetected: string = ''
 ) => {
   const timestamp = Date.now();
-  const type = 'key-points';
-  const length = 'short';
-
-  // Get the current context
-  const context = await getPageTitle();
-
-  // Create a summarizer only if the context has changed
-  const summarizer = await createSummarizer(context, type, length);
-
-  // Perform the summarization
-  const summary = await summarizer.summarize(selectionText, {
-    context,
-  });
-
-  const value = {
-    text: selectionText,
-    timestamp,
+  const value: DataEntry = {
+    title: title,
     page: pageUrl,
-    summary,
+    text: selectionText,
+    timestamp: timestamp,
+    isSynced: false,
+    summary: summary,
+    translatedText: translatedText,
+    languageDetected: languageDetected,
   };
 
   // Store the selected text and its summary in Chrome's local storage
   chrome.storage.local.set({ [timestamp]: value }, () => {
     console.log('Selected text stored:', value);
   });
+};
+
+export const summarize = async (
+  text: string,
+  type: string = 'key-points',
+  length: string = 'short'
+) => {
+  // Get the current context
+  const context = await getPageTitle();
+  const title = context;
+
+  // Create a summarizer only if the context has changed
+  const summarizer = await createSummarizer(context, type, length, title);
+
+  // Perform the summarization
+  const summary = await summarizer.summarize(text, {
+    context,
+  });
+
+  return summary;
+};
+
+// Function to handle summarization + translation to preferred language
+export const handleSummarization = async (
+  selectionText: string,
+  pageUrl: string
+) => {
+  let textToBeSummarised = selectionText;
+
+  // detect the language of the selected text, and translate it to English first if necessary
+  const languageCode = await detectLanguageCode(textToBeSummarised);
+
+  let translatedText: string = '';
+
+  // translate non-English text into English first (summarisation API limits to English io).
+  // we assume the text is English by default (e.g. in case of an error)
+  if (
+    !(
+      languageCode === 'en' ||
+      languageCode === ErrorCode.CannotDetect ||
+      languageCode === ErrorCode.NotSupported
+    )
+  ) {
+    const translator = await createTranslator(languageCode, 'en');
+    textToBeSummarised = await translator.translate(textToBeSummarised);
+    translatedText = textToBeSummarised;
+  }
+
+  let summary = await summarize(textToBeSummarised);
+
+  // obtain translation details
+  const isTranslationOn = await getTranslationOn();
+
+  // translate to preferred language
+  if (
+    isTranslationOn &&
+    languageCode !== ErrorCode.CannotDetect &&
+    languageCode !== ErrorCode.NotSupported
+  ) {
+    const targetLanguage = await getPreferredLanguage();
+    const translator = await createTranslator(languageCode, targetLanguage);
+    summary = await translator.stranslate(summary);
+  }
+
+  const pageTitle = await getPageTitle();
+
+  await storeSummary(
+    pageTitle,
+    selectionText,
+    pageUrl,
+    summary,
+    translatedText,
+    languageCode
+  );
 };

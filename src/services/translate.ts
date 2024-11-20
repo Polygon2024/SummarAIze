@@ -1,10 +1,8 @@
 import supportedLanguages from '../data/supportedLanguages';
+import ErrorCode from '../interface/ErrorCode';
 
 // @ts-ignore
-const canDetect = await translation.canDetect();
-
-// @ts-ignore
-const detector = await translation.createDetector();
+// const canDetect = translation.canDetect();
 
 export const isTranslatorAPISupported = () => {
   // @ts-ignore: Ignore "Cannot find name 'translation'" error
@@ -21,16 +19,19 @@ const codeToSupportedLanguage = (code: string) => {
 
 // Detect highest confidence language from text
 export const detectLanguageCode = async (text: string) => {
+  // @ts-ignore
+  const detector = await ai.languageDetector.create();
+
   const results = await detector.detect(text);
   const topResult = results[0];
 
   if (!codeToSupportedLanguage(topResult.languageCode)) {
-    return 'Not Supported';
+    return ErrorCode.NotSupported;
   }
 
   return topResult.confidence >= 0.6
     ? topResult.detectedLanguage
-    : 'Cannot Detect';
+    : ErrorCode.CannotDetect;
 };
 
 export const createTranslator = async (

@@ -115,8 +115,9 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText }) => {
   };
 
   // Summarising Text Input
-  const handleSummarise = async () => {
-    await handleSummarization(editableText, '');
+  const handleSummarise = async (editableText: string) => {
+    const pageUrl = '';
+    await handleSummarization(editableText, pageUrl);
   };
 
   useEffect(() => {
@@ -287,7 +288,7 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText }) => {
 
             {/* AI Summarising */}
             <Tooltip title='Summarise'>
-              <IconButton onClick={handleSummarise}>
+              <IconButton onClick={() => handleSummarise('')}>
                 <Send />
               </IconButton>
             </Tooltip>
