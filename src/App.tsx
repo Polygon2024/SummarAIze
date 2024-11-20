@@ -17,7 +17,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // // Check if a specific tab should be opened
+    // Check if a specific tab should be opened
     chrome.storage.local.get(
       ['selectedText', 'pageUrl', 'openTab'],
       (result) => {

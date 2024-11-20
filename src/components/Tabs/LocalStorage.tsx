@@ -11,11 +11,14 @@ import {
   Tooltip,
   CircularProgress,
   Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowDropDown,
   Check,
   Close,
+  ContentCopy,
   Delete,
   Edit,
   OpenInNew,
@@ -272,7 +275,6 @@ const LocalStorage: React.FC = () => {
 
           {allEntries.map((entry) => (
             <Accordion
-              defaultExpanded
               key={entry.timestamp}
               sx={{
                 border: 'none',
@@ -415,10 +417,59 @@ const LocalStorage: React.FC = () => {
 const TextDetails: React.FC<{
   DataEntry: DataEntry;
 }> = ({ DataEntry }) => {
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
+    'success'
+  );
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+
+  // Close Snackbar
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   // Splitting Dot Points of Summaries
   const bulletPoints = DataEntry.summary!.split('*')
     .map((item) => item.trim())
     .filter((item) => item.length > 0);
+
+  // Function to copy text to the clipboard
+  const handleCopyOriginal = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
+
+  // Function to copy text to the clipboard
+  const handleCopyTranslation = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
 
   return (
     <Stack spacing={1}>
@@ -472,28 +523,36 @@ const TextDetails: React.FC<{
         </Stack>
 
         {/* Nested Accordion for Original Text */}
-        {DataEntry.translatedText !== '' && (
-          <Accordion
-            sx={{
-              boxShadow: 'none',
-              border: '1px solid',
-              m: '0 !important',
-              borderColor: Blue.Blue5,
-              '&:before': {
-                display: 'none',
-              },
-            }}
-          >
-            <AccordionSummary expandIcon={<ArrowDropDown />}>
-              <Typography>
-                <strong> Orignal Text</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>{DataEntry.text}</Typography>
-            </AccordionDetails>
-          </Accordion>
-        )}
+        <Accordion
+          sx={{
+            boxShadow: 'none',
+            border: '1px solid',
+            m: '0 !important',
+            borderColor: Blue.Blue5,
+            '&:before': {
+              display: 'none',
+            },
+          }}
+        >
+          <AccordionSummary expandIcon={<ArrowDropDown />}>
+            <Typography>
+              <strong> Orignal Text</strong>
+            </Typography>
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={(event) => handleCopyOriginal(DataEntry.text, event)}
+                disabled={!DataEntry.text}
+                sx={{ ml: 1 }}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>{DataEntry.text}</Typography>
+          </AccordionDetails>
+        </Accordion>
 
         {/* Nested Accordion for Translated Text */}
         {DataEntry.translatedText !== '' && (
@@ -512,6 +571,18 @@ const TextDetails: React.FC<{
               <Typography>
                 <strong>Translation of Orignal Text</strong>
               </Typography>
+              <Tooltip title='Copy Content'>
+                <IconButton
+                  size='small'
+                  onClick={(event) =>
+                    handleCopyTranslation(DataEntry.translatedText!, event)
+                  }
+                  disabled={!DataEntry.translatedText}
+                  sx={{ ml: 1 }}
+                >
+                  <ContentCopy fontSize='inherit' />
+                </IconButton>
+              </Tooltip>
             </AccordionSummary>
             <AccordionDetails>
               <Typography>{DataEntry.translatedText}</Typography>
@@ -519,6 +590,17 @@ const TextDetails: React.FC<{
           </Accordion>
         )}
       </Box>
+
+      {/* Snackbar for copy success */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

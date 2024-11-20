@@ -11,11 +11,14 @@ import {
   Tooltip,
   CircularProgress,
   Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowDropDown,
   Check,
   Close,
+  ContentCopy,
   Delete,
   Edit,
   OpenInNew,
@@ -24,14 +27,14 @@ import { Blue } from '../../theme/color';
 import AlertMessage from '../UI/AlertMessage';
 import DataEntry from '../../interface/DataEntry.type';
 
-const LocalStorage: React.FC = () => {
+const SyncStorage: React.FC = () => {
   // TODO: Testing
   // const [allEntries, setAllEntries] = useState<DataEntry[]>([
   //   {
   //     page: 'https://mui.com/material-ui/material-icons/?query=open',
   //     text:
   //       'Welcome to the platform. This is your first step to exploring AI-powered features.',
-  //     timestamp: 123,
+  //     timestamp: 1023,
   //     languageDetected: 'en',
   //     title: 'Getting Started',
   //     summary: '* First dot point * Second dot point * Third dot point',
@@ -42,12 +45,11 @@ const LocalStorage: React.FC = () => {
   //   {
   //     page: 'https://mui.com/material-ui/material-icons/?query=open',
   //     text: 'Learn about integrating AI into your workflows seamlessly.',
-  //     timestamp: 1234,
+  //     timestamp: 1024,
   //     languageDetected: 'en',
   //     title: 'AI Integration',
   //     summary: '* First dot point * Second dot point * Third dot point',
-  //     translatedText:
-  //       'Tìm hiểu cách tích hợp AI vào quy trình làm việc của bạn một cách liền mạch.',
+  //     translatedText: '',
   //     isSynced: false,
   //   },
   // ]);
@@ -225,7 +227,6 @@ const LocalStorage: React.FC = () => {
 
           {allEntries.map((entry) => (
             <Accordion
-              defaultExpanded
               key={entry.timestamp}
               sx={{
                 border: 'none',
@@ -344,10 +345,59 @@ const LocalStorage: React.FC = () => {
 const TextDetails: React.FC<{
   DataEntry: DataEntry;
 }> = ({ DataEntry }) => {
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
+    'success'
+  );
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+
+  // Close Snackbar
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+  };
+
   // Splitting Dot Points of Summaries
   const bulletPoints = DataEntry.summary!.split('*')
     .map((item) => item.trim())
     .filter((item) => item.length > 0);
+
+  // Function to copy text to the clipboard
+  const handleCopyOriginal = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
+
+  // Function to copy text to the clipboard
+  const handleCopyTranslation = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
 
   return (
     <Stack spacing={1}>
@@ -401,28 +451,36 @@ const TextDetails: React.FC<{
         </Stack>
 
         {/* Nested Accordion for Original Text */}
-        {DataEntry.translatedText !== '' && (
-          <Accordion
-            sx={{
-              boxShadow: 'none',
-              border: '1px solid',
-              m: '0 !important',
-              borderColor: Blue.Blue5,
-              '&:before': {
-                display: 'none',
-              },
-            }}
-          >
-            <AccordionSummary expandIcon={<ArrowDropDown />}>
-              <Typography>
-                <strong> Orignal Text</strong>
-              </Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <Typography>{DataEntry.text}</Typography>
-            </AccordionDetails>
-          </Accordion>
-        )}
+        <Accordion
+          sx={{
+            boxShadow: 'none',
+            border: '1px solid',
+            m: '0 !important',
+            borderColor: Blue.Blue5,
+            '&:before': {
+              display: 'none',
+            },
+          }}
+        >
+          <AccordionSummary expandIcon={<ArrowDropDown />}>
+            <Typography>
+              <strong> Orignal Text</strong>
+            </Typography>
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={(event) => handleCopyOriginal(DataEntry.text, event)}
+                disabled={!DataEntry.text}
+                sx={{ ml: 1 }}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>{DataEntry.text}</Typography>
+          </AccordionDetails>
+        </Accordion>
 
         {/* Nested Accordion for Translated Text */}
         {DataEntry.translatedText !== '' && (
@@ -441,6 +499,18 @@ const TextDetails: React.FC<{
               <Typography>
                 <strong>Translation of Orignal Text</strong>
               </Typography>
+              <Tooltip title='Copy Content'>
+                <IconButton
+                  size='small'
+                  onClick={(event) =>
+                    handleCopyTranslation(DataEntry.translatedText!, event)
+                  }
+                  disabled={!DataEntry.translatedText}
+                  sx={{ ml: 1 }}
+                >
+                  <ContentCopy fontSize='inherit' />
+                </IconButton>
+              </Tooltip>
             </AccordionSummary>
             <AccordionDetails>
               <Typography>{DataEntry.translatedText}</Typography>
@@ -448,8 +518,19 @@ const TextDetails: React.FC<{
           </Accordion>
         )}
       </Box>
+
+      {/* Snackbar for copy success */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };
 
-export default LocalStorage;
+export default SyncStorage;
