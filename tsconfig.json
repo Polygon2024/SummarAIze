@@ -1,16 +1,14 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
-  ],
   "compilerOptions": {
-    "target": "ES6",
+    "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "outDir": "./dist", // Ensure compiled files go to dist
+    "jsx": "react-jsx", // Ensure JSX handling is enabled
     "types": ["chrome"]
-  }
+  },
+  "include": ["src/**/*", "vite.config.ts"]
 }

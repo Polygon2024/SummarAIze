@@ -3,9 +3,10 @@
   "name": "SummarAIze",
   "version": "1.0",
   "description": "AI-powered summarization and translation for research.",
-  "permissions": ["activeTab", "storage", "tabs"],
+  "permissions": ["activeTab", "storage", "tabs", "contextMenus"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "index.html",
@@ -18,7 +19,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["styles.css"]
     }
   ],
   "icons": {
