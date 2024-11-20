@@ -46,7 +46,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         height: 540,
       });
 
-      handleSummarization(info.selectionText, info.pageUrl);
+      await handleSummarization(info.selectionText, info.pageUrl);
     }
   } else if (menuItemId === 'writeRewrite') {
     if (info.selectionText) {

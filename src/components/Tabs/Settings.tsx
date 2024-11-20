@@ -66,6 +66,7 @@ const Settings: React.FC = () => {
     const fetchUserSettings = async () => {
       try {
         const userSettings = await getUserSettings();
+        console.log('US', userSettings);
         setTranslationOn(userSettings.translationOn);
         setPreferredLanguage(userSettings.preferredLanguage);
       } catch (error) {
@@ -76,7 +77,7 @@ const Settings: React.FC = () => {
     };
 
     fetchUserSettings();
-  }, []); // Empty dependency array to run only once on mount
+  }, []);
 
   // Show loading spinner while data is being fetched
   if (loading) {

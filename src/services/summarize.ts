@@ -109,7 +109,7 @@ export const handleSummarization = async (
       languageCode === ErrorCode.NotSupported
     )
   ) {
-    const translator = await createTranslator(languageCode, 'en');
+      const translator = await createTranslator(languageCode, 'en');
     textToBeSummarised = await translator.translate(textToBeSummarised);
     translatedText = textToBeSummarised;
   }
@@ -119,6 +119,9 @@ export const handleSummarization = async (
   // obtain translation details
   const isTranslationOn = await getTranslationOn();
 
+  console.log("isTranslationOn: ", isTranslationOn);
+  console.log("")
+
   // translate to preferred language
   if (
     isTranslationOn &&
@@ -127,7 +130,9 @@ export const handleSummarization = async (
   ) {
     const targetLanguage = await getPreferredLanguage();
     const translator = await createTranslator(languageCode, targetLanguage);
-    summary = await translator.stranslate(summary);
+    console.log(`Summarising to ${targetLanguage}`);
+    summary = await translator.translate(summary);
+    console.log(`translated summary: ${summary}`);
   }
 
   const pageTitle = await getPageTitle();
