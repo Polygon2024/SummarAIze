@@ -25,7 +25,7 @@ import {
 } from '@mui/icons-material';
 import { Blue } from '../../theme/color';
 import AlertMessage from '../UI/AlertMessage';
-import DataEntry from '../../interface/dataEntry.type';
+import DataEntry from '../../interface/DataEntry.type';
 
 const LocalStorage: React.FC = () => {
   // const [allEntries, setAllEntries] = useState<DataEntry[]>([]);
@@ -36,7 +36,7 @@ const LocalStorage: React.FC = () => {
       page: 'Introduction',
       text:
         'Welcome to the platform. This is your first step to exploring AI-powered features.',
-      timestamp: new Date().toISOString(), // Current timestamp in ISO 8601 format
+      timestamp: Date.now(),
       languageDetected: 'en',
       title: 'Getting Started',
       summary: "An overview of the platform's introduction.",
@@ -46,7 +46,7 @@ const LocalStorage: React.FC = () => {
     {
       page: 'Advanced Topics',
       text: 'Learn about integrating AI into your workflows seamlessly.',
-      timestamp: new Date(Date.now() - 86400000).toISOString(), // Timestamp for one day ago
+      timestamp: Date.now(),
       languageDetected: 'en',
       title: 'AI Integration',
       summary: 'A detailed guide on AI integration.',
@@ -91,13 +91,13 @@ const LocalStorage: React.FC = () => {
   }, []);
 
   // Edit Title of Data Entry
-  const handleEditTitle = (timestamp: string) => {};
+  const handleEditTitle = (timestamp: number) => {};
 
   // Sync Data Entry to Storage
-  const handleSyncEntry = (timestamp: string) => {};
+  const handleSyncEntry = (timestamp: number) => {};
 
   // Deletion of Data Entry
-  const handleDeleteEntry = (timestamp: string) => {};
+  const handleDeleteEntry = (timestamp: number) => {};
 
   return (
     <Box>

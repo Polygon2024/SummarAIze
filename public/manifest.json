@@ -5,7 +5,8 @@
   "description": "AI-powered summarization and translation for research.",
   "permissions": ["activeTab", "storage", "tabs", "contextMenus"],
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "background.js",
+    "type": "module"
   },
   "action": {
     "default_popup": "index.html",

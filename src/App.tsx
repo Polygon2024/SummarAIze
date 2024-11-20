@@ -17,7 +17,7 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check if a specific tab should be opened
+    // // Check if a specific tab should be opened
     chrome.storage.local.get(['openTab'], (result) => {
       setSelectedText(result.selectedText);
       if (result.openTab === 'summarizer') {
@@ -37,13 +37,15 @@ const App: React.FC = () => {
         minHeight: '500px',
         width: '100vw',
         height: '100vh',
+        overflowY: 'auto',
+        overflowX: 'hidden',
       }}
     >
       {/* Left Tab Section */}
       <TabsSection value={selectedTab} onTabChange={handleTabChange} />
 
       {/* Main Content Area */}
-      <Box sx={{ flexGrow: 1, padding: 2 }}>
+      <Box sx={{ flexGrow: 1, padding: 2, ml: '36px' }}>
         {selectedTab === 0 && <Home />}
         {selectedTab === 1 && <Summarize selectedText={selectedText} />}
         {selectedTab === 2 && <WriterRewriter />}

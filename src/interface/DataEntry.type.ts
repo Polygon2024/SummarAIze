@@ -1,12 +1,12 @@
 export default interface DataEntry {
   // Required Entries
+  title: string;
   page: string;
   text: string;
-  timestamp: string; //TODO: Fixes required
-  languageDetected?: string;
+  timestamp: number;
 
   // Optional Entries
-  title?: string;
   summary?: string;
   translatedText?: string;
+  languageDetected?: string;
 }
