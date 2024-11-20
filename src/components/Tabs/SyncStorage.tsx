@@ -14,9 +14,12 @@ import {
   IconButton,
   TextField,
   Tooltip,
+  CircularProgress,
 } from '@mui/material';
 import {
   ArrowDropDown,
+  Check,
+  Close,
   Delete,
   DeleteOutline,
   Edit,
@@ -28,34 +31,12 @@ import AlertMessage from '../UI/AlertMessage';
 import DataEntry from '../../interface/DataEntry.type';
 
 const LocalStorage: React.FC = () => {
-  // const [allEntries, setAllEntries] = useState<DataEntry[]>([]);
+  const [allEntries, setAllEntries] = useState<DataEntry[]>([]);
+  const [editingTitle, setEditingTitle] = useState<number | null>(null);
+  const [editingTitleValue, setEditingTitleValue] = useState<string>('');
+  const [toggleRefresh, setToggleRefresh] = useState<boolean>(true);
 
-  // TODO: Testing
-  const [allEntries, setAllEntries] = useState<DataEntry[]>([
-    {
-      page: 'Introduction',
-      text:
-        'Welcome to the platform. This is your first step to exploring AI-powered features.',
-      timestamp: Date.now(),
-      languageDetected: 'en',
-      title: 'Getting Started',
-      summary: "An overview of the platform's introduction.",
-      translatedText:
-        'Chào mừng đến với nền tảng. Đây là bước đầu tiên của bạn để khám phá các tính năng AI.',
-    },
-    {
-      page: 'Advanced Topics',
-      text: 'Learn about integrating AI into your workflows seamlessly.',
-      timestamp: Date.now(),
-      languageDetected: 'en',
-      title: 'AI Integration',
-      summary: 'A detailed guide on AI integration.',
-      translatedText:
-        'Tìm hiểu cách tích hợp AI vào quy trình làm việc của bạn một cách liền mạch.',
-    },
-  ]);
-
-  const [pageLoading, setPageLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   // State for alerts
   const [alertOpen, setAlertOpen] = useState(false);
@@ -68,39 +49,154 @@ const LocalStorage: React.FC = () => {
     setAlertOpen(false);
   };
 
+  function isValidDataEntry(entry: any): entry is DataEntry {
+    // Check if required fields exist
+    console.log('Entries', entry);
+    if (
+      typeof entry.page === 'string' &&
+      typeof entry.text === 'string' &&
+      typeof entry.timestamp === 'number'
+    ) {
+      return true;
+    }
+    return false;
+  }
+
   // Fetch all data from local storage
   useEffect(() => {
     async function getAllEntries() {
+      setLoading(true);
       try {
-        const items = await chrome.storage.local.get(null);
+        const items = await chrome.storage.sync.get(null);
         const entries = Object.values(items);
 
-        if (entries.length === 0) {
-          console.log('No entries found in local storage.');
+        // Validate the entries
+        const validEntries = entries.filter(isValidDataEntry);
+
+        if (validEntries.length === 0) {
+          setAlertMessage('No valid entries found.');
+          setAlertSeverity('info');
+          setAlertOpen(true);
           return;
         }
 
-        console.log('Entries retrieved:', entries);
-        setAllEntries(entries);
+        setAllEntries(validEntries);
       } catch (error) {
         console.error('Error retrieving entries:', error);
+        setAlertMessage('Error retrieving entries.');
+        setAlertSeverity('error');
+        setAlertOpen(true);
+      } finally {
+        setLoading(false);
       }
     }
 
     getAllEntries();
-  }, []);
+  }, [toggleRefresh]);
 
   // Edit Title of Data Entry
-  const handleEditTitle = (timestamp: number) => {};
+  const handleEditTitle = (timestamp: number, event: React.MouseEvent) => {
+    event.stopPropagation();
+    if (editingTitle === timestamp) {
+      setEditingTitle(null);
+    } else {
+      setEditingTitle(timestamp);
+      const entry = allEntries.find((entry) => entry.timestamp === timestamp);
+      if (entry && entry.title) setEditingTitleValue(entry.title);
+    }
+  };
 
-  // Sync Data Entry to Storage
-  const handleSyncEntry = (timestamp: number) => {};
+  // Cancel Editing Title
+  const handleCancelEdit = () => {
+    setEditingTitle(null);
+  };
+
+  /// Save Edited Title
+  const handleSaveTitle = async (timestamp: number, newTitle: string) => {
+    setLoading(true);
+    try {
+      // Retrieve the current entry from Chrome Storage
+      const result = await chrome.storage.sync.get(timestamp.toString()); // Ensure timestamp is a string
+
+      if (!result[timestamp]) {
+        throw new Error('Entry not found in storage.');
+      }
+
+      // Update the title of the retrieved entry
+      const updatedEntry = {
+        ...result[timestamp.toString()],
+        title: newTitle,
+      };
+
+      // Save the updated entry back to Chrome Storage
+      await chrome.storage.sync.set({
+        [timestamp.toString()]: updatedEntry,
+      });
+
+      // Show success alert
+      setToggleRefresh(!toggleRefresh);
+      setAlertMessage('Title updated successfully.');
+      setAlertSeverity('success');
+      setAlertOpen(true);
+
+      // Trigger a re-fetch of the data by calling useEffect again
+      // This will refresh the entries when useEffect is triggered
+    } catch (error) {
+      console.error('Error saving title:', error);
+      setAlertMessage('Error saving title.');
+      setAlertSeverity('error');
+      setAlertOpen(true);
+    } finally {
+      setEditingTitle(null);
+      setLoading(false);
+    }
+  };
 
   // Deletion of Data Entry
-  const handleDeleteEntry = (timestamp: number) => {};
+  const handleDeleteEntry = async (
+    timestamp: number,
+    event: React.MouseEvent
+  ) => {
+    event.stopPropagation();
+    try {
+      setLoading(true);
+
+      // Delete the entry from Chrome Storage
+      await chrome.storage.sync.remove(timestamp.toString());
+      setToggleRefresh(!toggleRefresh);
+      setAlertMessage('Entry deleted successfully.');
+      setAlertSeverity('success');
+      setAlertOpen(true);
+    } catch (error) {
+      console.error('Error deleting entry:', error);
+      setAlertMessage('Error deleting entry.');
+      setAlertSeverity('error');
+      setAlertOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Loading Spinner
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          height: '100vh',
+        }}
+      >
+        <CircularProgress disableShrink />
+      </Box>
+    );
+  }
 
   return (
-    <Box>
+    <>
       {/* Success / Error Alert */}
       <AlertMessage
         open={alertOpen}
@@ -109,7 +205,6 @@ const LocalStorage: React.FC = () => {
         onClose={handleAlertClose}
       />
 
-      {/* Display a Button instead of There are no Asignments */}
       {allEntries.length !== 0 ? (
         <>
           {/* DataEntry List */}
@@ -141,38 +236,65 @@ const LocalStorage: React.FC = () => {
                     }}
                   >
                     {/* Title */}
-                    <TextField variant='standard' value={entry.title} />
+                    <TextField
+                      variant='standard'
+                      value={
+                        editingTitle === entry.timestamp
+                          ? editingTitleValue
+                          : entry.title
+                      }
+                      disabled={editingTitle !== entry.timestamp}
+                      onChange={(e) => setEditingTitleValue(e.target.value)}
+                    />
 
-                    {/* Edit Title */}
-                    <Tooltip title='Edit Entry Title'>
-                      <IconButton
-                        onClick={() => handleEditTitle(entry.timestamp)}
-                      >
-                        <Edit fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
+                    {/* Edit / Save / Cancel Buttons */}
+                    {editingTitle === entry.timestamp ? (
+                      <>
+                        {/* Save Button */}
+                        <Tooltip title='Save Entry Title'>
+                          <IconButton
+                            onClick={() =>
+                              handleSaveTitle(
+                                entry.timestamp,
+                                editingTitleValue
+                              )
+                            }
+                          >
+                            <Check fontSize='small' />
+                          </IconButton>
+                        </Tooltip>
+
+                        {/* Cancel Button */}
+                        <Tooltip title='Cancel Edit'>
+                          <IconButton onClick={handleCancelEdit}>
+                            <Close fontSize='small' />
+                          </IconButton>
+                        </Tooltip>
+                      </>
+                    ) : (
+                      // Edit Button
+                      <Tooltip title='Edit Entry Title'>
+                        <IconButton
+                          onClick={(event) =>
+                            handleEditTitle(entry.timestamp, event)
+                          }
+                        >
+                          <Edit fontSize='small' />
+                        </IconButton>
+                      </Tooltip>
+                    )}
                   </Box>
 
-                  {/* Sync and Delete Options */}
-                  <Box>
-                    {/* Sync Data to Storage */}
-                    <Tooltip title='Sync Data Entry'>
-                      <IconButton
-                        onClick={() => handleSyncEntry(entry.timestamp)}
-                      >
-                        <Sync fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
-
-                    {/* Delete to Data Entry */}
-                    <Tooltip title='Delete Data Entry'>
-                      <IconButton
-                        onClick={() => handleDeleteEntry(entry.timestamp)}
-                      >
-                        <Delete fontSize='small' />
-                      </IconButton>
-                    </Tooltip>
-                  </Box>
+                  {/* Delete to Data Entry */}
+                  <Tooltip title='Delete Data Entry'>
+                    <IconButton
+                      onClick={(event) =>
+                        handleDeleteEntry(entry.timestamp, event)
+                      }
+                    >
+                      <Delete fontSize='small' />
+                    </IconButton>
+                  </Tooltip>
                 </Box>
               </AccordionSummary>
               <AccordionDetails>
@@ -200,7 +322,7 @@ const LocalStorage: React.FC = () => {
           </Typography>
         </Box>
       )}
-    </Box>
+    </>
   );
 };
 
