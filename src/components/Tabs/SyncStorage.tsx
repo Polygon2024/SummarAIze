@@ -177,8 +177,23 @@ const SyncStorage: React.FC = () => {
     try {
       setLoading(true);
 
-      // Delete the entry from Chrome Storage
+      // Delete the entry from Chrome Sync Storage
       await chrome.storage.sync.remove(timestamp.toString());
+
+      // Retrieve the current entry from Chrome Storage
+      const result = await chrome.storage.local.get(timestamp.toString());
+
+      // Update the synced value of the retrieved entry
+      const updatedEntry = {
+        ...result[timestamp.toString()],
+        isSynced: false,
+      };
+
+      // Save the updated entry back to Chrome Storage
+      await chrome.storage.local.set({
+        [timestamp.toString()]: updatedEntry,
+      });
+
       setToggleRefresh(!toggleRefresh);
       setAlertMessage('Entry deleted successfully.');
       setAlertSeverity('success');

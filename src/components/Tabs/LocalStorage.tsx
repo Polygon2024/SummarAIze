@@ -133,7 +133,7 @@ const LocalStorage: React.FC = () => {
     setLoading(true);
     try {
       // Retrieve the current entry from Chrome Storage
-      const result = await chrome.storage.local.get(timestamp.toString()); // Ensure timestamp is a string
+      const result = await chrome.storage.local.get(timestamp.toString());
 
       if (!result[timestamp]) {
         throw new Error('Entry not found in storage.');
