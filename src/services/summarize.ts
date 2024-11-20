@@ -66,6 +66,8 @@ export const storeSummary = async (
   chrome.storage.local.set({ [timestamp]: value }, () => {
     console.log('Selected text stored:', value);
   });
+
+  return summary;
 };
 
 export const summarize = async (
@@ -143,7 +145,7 @@ export const handleSummarization = async (
 
   const pageTitle = await getPageTitle();
 
-  await storeSummary(
+  const result = await storeSummary(
     pageTitle,
     selectionText,
     pageUrl,
@@ -151,4 +153,6 @@ export const handleSummarization = async (
     translatedText,
     languageCode
   );
+
+  return result;
 };

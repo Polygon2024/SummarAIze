@@ -428,22 +428,24 @@ const TextDetails: React.FC<{
           gap: 2,
         }}
       >
-        <Typography>
-          <Link
-            href={DataEntry.page}
-            target='_blank'
-            sx={{
-              color: Blue.Blue6,
-              textDecoration: 'none',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 0.5,
-            }}
-          >
-            <OpenInNew />
-            <strong>URL Link:</strong> {DataEntry.page}
-          </Link>
-        </Typography>
+        {DataEntry.page !== '' && (
+          <Typography>
+            <Link
+              href={DataEntry.page}
+              target='_blank'
+              sx={{
+                color: Blue.Blue6,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+              }}
+            >
+              <OpenInNew />
+              <strong>URL Link:</strong> {DataEntry.page}
+            </Link>
+          </Typography>
+        )}
 
         <Stack spacing={1}>
           {/* List Display of Summaries */}

@@ -18,19 +18,13 @@ const App: React.FC = () => {
 
   useEffect(() => {
     // Check if a specific tab should be opened
-    chrome.storage.local.get(
-      ['selectedText', 'pageUrl', 'openTab'],
-      (result) => {
-        setSelectedText(result.selectedText);
-        setPageUrl(result.pageUrl);
-        if (result.openTab === 'summarizer') {
-          setSelectedTab(1);
-        } else if (result.openTab === 'writer/rewriter') {
-          setSelectedTab(2);
-        }
-        chrome.storage.local.remove('openTab');
+    chrome.storage.local.get(['openTab'], (result) => {
+      if (result.openTab === 'summarizer') {
+        setSelectedTab(1);
+      } else if (result.openTab === 'writer/rewriter') {
+        setSelectedTab(2);
       }
-    );
+    });
   }, []);
 
   return (
@@ -51,9 +45,7 @@ const App: React.FC = () => {
       {/* Main Content Area */}
       <Box sx={{ flexGrow: 1, padding: 2, ml: '36px' }}>
         {selectedTab === 0 && <Home />}
-        {selectedTab === 1 && (
-          <Summarize selectedText={selectedText} pageUrl={pageUrl} />
-        )}
+        {selectedTab === 1 && <Summarize />}
         {selectedTab === 2 && <WriterRewriter />}
         {selectedTab === 3 && <LocalStorage />}
         {selectedTab === 4 && <SyncStorage />}
