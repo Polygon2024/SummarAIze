@@ -57,10 +57,11 @@ const testContent = `A complex issue Climate change impacts our society in many 
 `;
 
 interface SummarizeProps {
-  selectedText?: string; // selectedText is optional
+  selectedText?: string | null;
+  pageUrl?: string | null;
 }
 
-const Summarize: React.FC<SummarizeProps> = ({ selectedText }) => {
+const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
 
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
@@ -121,30 +122,41 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText }) => {
   };
 
   useEffect(() => {
-    // Function to get the latest entry based on timestamp
-    async function getLatestEntry() {
-      try {
-        const items = await chrome.storage.local.get(null);
-        const entries = Object.values(items);
-
-        if (entries.length === 0) {
-          console.log('No entries found in local storage.');
-          return;
+    if (selectedText && pageUrl) {
+      async function getSelectedSummary() {
+        try {
+          await handleSummarization(selectedText!, pageUrl!);
+        } catch (error) {
+          console.error('Error Handling Selected Text:', error);
         }
-
-        // Sort entries by timestamp in descending order to get the latest one
-        entries.sort((a, b) => b.timestamp - a.timestamp);
-        const latest = entries[0];
-
-        console.log('Latest entry retrieved:', latest);
-        setLatestEntry(latest);
-        setEditableText(latest.text);
-      } catch (error) {
-        console.error('Error retrieving latest entry:', error);
       }
-    }
 
-    getLatestEntry();
+      getSelectedSummary();
+    } else {
+      // Function to get the latest entry based on timestamp
+      async function getLatestEntry() {
+        try {
+          const items = await chrome.storage.local.get(null);
+          const entries = Object.values(items);
+
+          if (entries.length === 0) {
+            console.log('No entries found in local storage.');
+            return;
+          }
+
+          // Sort entries by timestamp in descending order to get the latest one
+          entries.sort((a, b) => b.timestamp - a.timestamp);
+          const latest = entries[0];
+
+          setLatestEntry(latest);
+          setEditableText(latest.text);
+        } catch (error) {
+          console.error('Error retrieving latest entry:', error);
+        }
+      }
+
+      getLatestEntry();
+    }
   }, []);
 
   return (

@@ -94,13 +94,25 @@ export const handleSummarization = async (
   pageUrl: string
 ) => {
   let textToBeSummarised = selectionText;
+  // Preferred Language from Settings
+  const targetLanguage = await getPreferredLanguage();
 
   // detect the language of the selected text, and translate it to English first if necessary
   const languageCode = await detectLanguageCode(textToBeSummarised);
 
+  // if the language of the text and preferred language are different, translate the to the preferred language
   let translatedText: string = '';
 
-  // translate non-English text into English first (summarisation API limits to English io).
+  if (
+    languageCode !== targetLanguage &&
+    languageCode !== ErrorCode.CannotDetect &&
+    languageCode !== ErrorCode.NotSupported
+  ) {
+    const translator = await createTranslator(languageCode, targetLanguage);
+    translatedText = await translator.translate(textToBeSummarised);
+  }
+
+  // Translate non-English text into English first (summarisation API limits to English io).
   // we assume the text is English by default (e.g. in case of an error)
   if (
     !(
@@ -109,9 +121,9 @@ export const handleSummarization = async (
       languageCode === ErrorCode.NotSupported
     )
   ) {
-      const translator = await createTranslator(languageCode, 'en');
+    // 1st Layer Translation to English
+    const translator = await createTranslator(languageCode, 'en');
     textToBeSummarised = await translator.translate(textToBeSummarised);
-    translatedText = textToBeSummarised;
   }
 
   let summary = await summarize(textToBeSummarised);
@@ -119,20 +131,14 @@ export const handleSummarization = async (
   // obtain translation details
   const isTranslationOn = await getTranslationOn();
 
-  console.log("isTranslationOn: ", isTranslationOn);
-  console.log("")
-
   // translate to preferred language
   if (
     isTranslationOn &&
     languageCode !== ErrorCode.CannotDetect &&
     languageCode !== ErrorCode.NotSupported
   ) {
-    const targetLanguage = await getPreferredLanguage();
     const translator = await createTranslator(languageCode, targetLanguage);
-    console.log(`Summarising to ${targetLanguage}`);
     summary = await translator.translate(summary);
-    console.log(`translated summary: ${summary}`);
   }
 
   const pageTitle = await getPageTitle();

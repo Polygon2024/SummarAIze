@@ -14,7 +14,7 @@ const codeToSupportedLanguage = (code: string) => {
   if (code in supportedLanguages) {
     return supportedLanguages[code];
   }
-  return false;
+  return ErrorCode.NotSupported;
 };
 
 // Detect highest confidence language from text
@@ -25,7 +25,10 @@ export const detectLanguageCode = async (text: string) => {
   const results = await detector.detect(text);
   const topResult = results[0];
 
-  if (!codeToSupportedLanguage(topResult.languageCode)) {
+  console.log('top language result:', topResult.detectedLanguage);
+  console.log(topResult);
+
+  if (!(topResult.detectedLanguage in supportedLanguages)) {
     return ErrorCode.NotSupported;
   }
 
@@ -38,20 +41,19 @@ export const createTranslator = async (
   sourceLanguage: string,
   targetLanguage: string
 ) => {
-  if (
-    !(
-      isTranslatorAPISupported() &&
-      // @ts-ignore: Ignore "Cannot find name 'translation'" error
-      (await translation.canTranslate({
-        sourceLanguage: sourceLanguage,
-        targetLanguage: targetLanguage,
-      }))
-    )
+  if (!isTranslatorAPISupported()) {
+    console.log('Translator API is not supported.');
+    return null;
+  } else if (
+    // @ts-ignore: Ignore "Cannot find name 'translation'" error
+    !(await translation.canTranslate({
+      sourceLanguage: sourceLanguage,
+      targetLanguage: targetLanguage,
+    }))
   ) {
     console.log(
-      `Unable to translate due to either (1) Translator API or (2) translation from ${sourceLanguage} to ${targetLanguage} is not supported`
+      `translation from ${sourceLanguage} to ${targetLanguage} is not supported`
     );
-    return null;
   }
 
   // @ts-ignore: Ignore "Cannot find name 'translation'" error
