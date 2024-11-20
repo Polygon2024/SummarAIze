@@ -6,8 +6,6 @@ type MenuItemId = 'summarySelection' | 'writeRewrite';
 
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('SummarAIze Extension Installed');
-
   // Add the context menu for text selection: Summarise
   chrome.contextMenus.create({
     id: 'summarySelection',
@@ -30,11 +28,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (menuItemId === 'summarySelection') {
     if (info.selectionText) {
       let textToBeSummarised = info.selectionText;
-      console.log('Selected text:', textToBeSummarised);
 
       // Save the selected text and target tab to local storage
       chrome.storage.local.set({
         selectedText: textToBeSummarised,
+        pageUrl: info.pageUrl,
         openTab: 'summarizer',
       });
 
@@ -45,8 +43,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         width: 640,
         height: 540,
       });
-
-      await handleSummarization(info.selectionText, info.pageUrl);
     }
   } else if (menuItemId === 'writeRewrite') {
     if (info.selectionText) {
@@ -72,8 +68,6 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 // Handle incoming messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'PAGE_TITLE') {
-    console.log('Received page title from content script:', message.title);
-
     // Store the page title in session storage
     chrome.storage.session.set({ pageTitle: message.title }, () => {
       console.log(
