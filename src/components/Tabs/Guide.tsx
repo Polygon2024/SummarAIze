@@ -1,7 +1,7 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-const Home: React.FC = () => {
+const Guide: React.FC = () => {
   return (
     <Box
       sx={{
@@ -11,9 +11,9 @@ const Home: React.FC = () => {
         height: '100%',
       }}
     >
-      <Typography variant='h1'>Home</Typography>
+      <Typography variant='h1'>Guide</Typography>
     </Box>
   );
 };
 
-export default Home;
+export default Guide;
