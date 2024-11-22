@@ -6,24 +6,22 @@ import {
   AccordionSummary,
   AccordionDetails,
   Stack,
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
   IconButton,
   TextField,
   Tooltip,
   CircularProgress,
+  Link,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import {
   ArrowDropDown,
   Check,
   Close,
+  ContentCopy,
   Delete,
-  DeleteOutline,
   Edit,
-  ReportGmailerrorred,
+  OpenInNew,
   Sync,
 } from '@mui/icons-material';
 import { Blue } from '../../theme/color';
@@ -31,35 +29,36 @@ import AlertMessage from '../UI/AlertMessage';
 import DataEntry from '../../interface/DataEntry.type';
 
 const LocalStorage: React.FC = () => {
+  // TODO: Testing
+  // const [allEntries, setAllEntries] = useState<DataEntry[]>([
+  //   {
+  //     page: 'https://mui.com/material-ui/material-icons/?query=open',
+  //     text:
+  //       'Welcome to the platform. This is your first step to exploring AI-powered features.',
+  //     timestamp: 123,
+  //     languageDetected: 'en',
+  //     title: 'Getting Started',
+  //     summary: '* First dot point * Second dot point * Third dot point',
+  //     translatedText:
+  //       'Chào mừng đến với nền tảng. Đây là bước đầu tiên của bạn để khám phá các tính năng AI.',
+  //     isSynced: false,
+  //   },
+  //   {
+  //     page: 'https://mui.com/material-ui/material-icons/?query=open',
+  //     text: 'Learn about integrating AI into your workflows seamlessly.',
+  //     timestamp: 1234,
+  //     languageDetected: 'en',
+  //     title: 'AI Integration',
+  //     summary: '* First dot point * Second dot point * Third dot point',
+  //     translatedText:
+  //       'Tìm hiểu cách tích hợp AI vào quy trình làm việc của bạn một cách liền mạch.',
+  //     isSynced: false,
+  //   },
+  // ]);
   const [allEntries, setAllEntries] = useState<DataEntry[]>([]);
   const [editingTitle, setEditingTitle] = useState<number | null>(null);
   const [editingTitleValue, setEditingTitleValue] = useState<string>('');
   const [toggleRefresh, setToggleRefresh] = useState<boolean>(true);
-
-  // TODO: Testing
-  // const [allEntries, setAllEntries] = useState<DataEntry[]>([
-  //   {
-  //     page: 'Introduction',
-  //     text:
-  //       'Welcome to the platform. This is your first step to exploring AI-powered features.',
-  //     timestamp: new Date().toISOString(), // Current timestamp in ISO 8601 format
-  //     languageDetected: 'en',
-  //     title: 'Getting Started',
-  //     summary: "An overview of the platform's introduction.",
-  //     translatedText:
-  //       'Chào mừng đến với nền tảng. Đây là bước đầu tiên của bạn để khám phá các tính năng AI.',
-  //   },
-  //   {
-  //     page: 'Advanced Topics',
-  //     text: 'Learn about integrating AI into your workflows seamlessly.',
-  //     timestamp: new Date(Date.now() - 86400000).toISOString(), // Timestamp for one day ago
-  //     languageDetected: 'en',
-  //     title: 'AI Integration',
-  //     summary: 'A detailed guide on AI integration.',
-  //     translatedText:
-  //       'Tìm hiểu cách tích hợp AI vào quy trình làm việc của bạn một cách liền mạch.',
-  //   },
-  // ]);
 
   const [loading, setLoading] = useState(true);
 
@@ -76,7 +75,6 @@ const LocalStorage: React.FC = () => {
 
   function isValidDataEntry(entry: any): entry is DataEntry {
     // Check if required fields exist
-    console.log('Entries', entry);
     if (
       typeof entry.page === 'string' &&
       typeof entry.text === 'string' &&
@@ -134,7 +132,7 @@ const LocalStorage: React.FC = () => {
     setLoading(true);
     try {
       // Retrieve the current entry from Chrome Storage
-      const result = await chrome.storage.local.get(timestamp.toString()); // Ensure timestamp is a string
+      const result = await chrome.storage.local.get(timestamp.toString());
 
       if (!result[timestamp]) {
         throw new Error('Entry not found in storage.');
@@ -276,7 +274,6 @@ const LocalStorage: React.FC = () => {
 
           {allEntries.map((entry) => (
             <Accordion
-              defaultExpanded
               key={entry.timestamp}
               sx={{
                 border: 'none',
@@ -361,10 +358,11 @@ const LocalStorage: React.FC = () => {
                     >
                       {/* Sync Data to Storage */}
                       <IconButton
-                        onClick={(event) =>
-                          handleSyncEntry(entry.timestamp, event)
+                        onClick={
+                          entry.isSynced
+                            ? () => {}
+                            : (event) => handleSyncEntry(entry.timestamp, event)
                         }
-                        disabled={entry.isSynced}
                       >
                         <Sync
                           fontSize='small'
@@ -419,29 +417,59 @@ const LocalStorage: React.FC = () => {
 const TextDetails: React.FC<{
   DataEntry: DataEntry;
 }> = ({ DataEntry }) => {
-  // Successful and Error Snackbar Alert State
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
     'success'
   );
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const handleSnackbarClose = () => {
-    setSnackbarOpen(false);
+  const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
+  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+
+  // Close Snackbar
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
   };
 
-  // Confirmation dialog states
-  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  // Splitting Dot Points of Summaries
+  const bulletPoints = DataEntry.summary!.split('*')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
 
-  // Double Check on Removal Confirmations
-  const handleRemove = () => {
-    setConfirmDialogOpen(true);
+  // Function to copy text to the clipboard
+  const handleCopyOriginal = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
   };
 
-  // Function to remove an data entry
-  const confirmRemove = async () => {};
+  // Function to copy text to the clipboard
+  const handleCopyTranslation = (text: string, event: React.MouseEvent) => {
+    event.stopPropagation();
 
-  // TODO: ?? Edit Button
-  const handleEdit = async () => {};
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setSnackbarSeverity('success');
+        setSnackbarMessage('Text copied to clipboard!');
+        setOpenSnackbar(true);
+      })
+      .catch((err) => {
+        console.error('Failed to copy text: ', err);
+        setSnackbarSeverity('error');
+        setSnackbarMessage('Failed to copy text');
+        setOpenSnackbar(true);
+      });
+  };
 
   return (
     <Stack spacing={1}>
@@ -457,15 +485,76 @@ const TextDetails: React.FC<{
           gap: 2,
         }}
       >
-        <Typography>
-          <strong>Original Text:</strong> {DataEntry.text}
-        </Typography>
-        <Typography>
-          <strong>URL Link:</strong> {DataEntry.page}
-        </Typography>
-        <Typography>
-          <strong>Summaries:</strong> {DataEntry.summary}
-        </Typography>
+        {DataEntry.page !== '' && (
+          <Typography>
+            <Link
+              href={DataEntry.page}
+              target='_blank'
+              sx={{
+                color: Blue.Blue6,
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 0.5,
+              }}
+            >
+              <OpenInNew />
+              <strong>URL Link:</strong> {DataEntry.page}
+            </Link>
+          </Typography>
+        )}
+
+        <Stack spacing={1}>
+          {/* List Display of Summaries */}
+          <Typography variant='h6'>
+            <strong>Summaries:</strong>
+          </Typography>
+
+          <ul
+            style={{
+              paddingLeft: '20px',
+              listStyleType: 'disc',
+            }}
+          >
+            {bulletPoints.map((point, index) => (
+              <li key={index} style={{ marginBottom: '4px' }}>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </Stack>
+
+        {/* Nested Accordion for Original Text */}
+        <Accordion
+          sx={{
+            boxShadow: 'none',
+            border: '1px solid',
+            m: '0 !important',
+            borderColor: Blue.Blue5,
+            '&:before': {
+              display: 'none',
+            },
+          }}
+        >
+          <AccordionSummary expandIcon={<ArrowDropDown />}>
+            <Typography>
+              <strong> Orignal Text</strong>
+            </Typography>
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={(event) => handleCopyOriginal(DataEntry.text, event)}
+                disabled={!DataEntry.text}
+                sx={{ ml: 1 }}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography>{DataEntry.text}</Typography>
+          </AccordionDetails>
+        </Accordion>
 
         {/* Nested Accordion for Translated Text */}
         {DataEntry.translatedText !== '' && (
@@ -474,7 +563,7 @@ const TextDetails: React.FC<{
               boxShadow: 'none',
               border: '1px solid',
               borderColor: Blue.Blue5,
-              borderRadius: '15px',
+              m: '0 !important',
               '&:before': {
                 display: 'none',
               },
@@ -482,8 +571,20 @@ const TextDetails: React.FC<{
           >
             <AccordionSummary expandIcon={<ArrowDropDown />}>
               <Typography>
-                <strong>Translated Orignal Text</strong>
+                <strong>Translation of Orignal Text</strong>
               </Typography>
+              <Tooltip title='Copy Content'>
+                <IconButton
+                  size='small'
+                  onClick={(event) =>
+                    handleCopyTranslation(DataEntry.translatedText!, event)
+                  }
+                  disabled={!DataEntry.translatedText}
+                  sx={{ ml: 1 }}
+                >
+                  <ContentCopy fontSize='inherit' />
+                </IconButton>
+              </Tooltip>
             </AccordionSummary>
             <AccordionDetails>
               <Typography>{DataEntry.translatedText}</Typography>
@@ -492,49 +593,16 @@ const TextDetails: React.FC<{
         )}
       </Box>
 
-      {/* Snackbar for Success/Error */}
-      <AlertMessage
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        onClose={handleSnackbarClose}
-      />
-
-      {/* Confirmation Dialog for Deletion */}
-      <Dialog
-        open={confirmDialogOpen}
-        onClose={() => setConfirmDialogOpen(false)}
+      {/* Snackbar for copy success */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackbar}
       >
-        <DialogTitle>
-          <Box display='flex' alignItems='center'>
-            <ReportGmailerrorred color='error' sx={{ marginRight: 1 }} />
-            Confirm Deletion
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Stack spacing={2}>
-            <Typography>Confirm Deletion of Data Entry</Typography>
-            <Typography>This action is irreversible!</Typography>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            variant='contained'
-            color='info'
-            onClick={() => setConfirmDialogOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='contained'
-            color='error'
-            onClick={confirmRemove}
-            endIcon={<DeleteOutline />}
-          >
-            Confirm
-          </Button>
-        </DialogActions>
-      </Dialog>
+        <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity}>
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 };

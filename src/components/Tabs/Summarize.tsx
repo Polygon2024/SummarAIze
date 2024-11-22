@@ -16,6 +16,8 @@ import {
   DialogContent,
   DialogTitle,
   Button,
+  CircularProgress,
+  Skeleton,
 } from '@mui/material';
 import {
   Close,
@@ -48,7 +50,6 @@ enum AISummarizerLength {
 
 type LatestEntry = {
   text: string;
-  timestamp: number;
   page: string;
   summary: string;
 } | null;
@@ -56,14 +57,9 @@ type LatestEntry = {
 const testContent = `A complex issue Climate change impacts our society in many different ways. Drought can harm food production and human health. Flooding can lead to spread of disease, death, and damage ecosystems and infrastructure. Human health issues that result from drought, flooding, and other weather conditions increase the death rate, change food availability, and limit how much a worker can get done, and ultimately the productivity of our economy. Climate change affects everyone, but the impacts are uneven across the country and around the world. Even within one community, climate change can affect one neighborhood or person more than another. Long-standing differences in income and opportunity, or socioeconomic inequalities, can make some groups more vulnerable. Communities that have less access to resources to protect themselves or cope with impacts are often the same communities that are also more exposed to hazards.
 `;
 
-interface SummarizeProps {
-  selectedText?: string | null;
-  pageUrl?: string | null;
-}
-
-const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
+const Summarize: React.FC = () => {
+  const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
-
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
     AISummarizerType['key-points']
   );
@@ -75,8 +71,9 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
   );
 
   const [editableText, setEditableText] = useState<string>('');
-
   const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
+
+  // State for alerts
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
     'success'
   );
@@ -116,26 +113,69 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
   };
 
   // Summarising Text Input
-  const handleSummarise = async (editableText: string) => {
+  const handleSummarise = async () => {
+    setLoading(true);
     const pageUrl = '';
-    await handleSummarization(editableText, pageUrl);
+    try {
+      const summary = await handleSummarization(editableText, pageUrl);
+      const parsedResult = {
+        text: editableText || '',
+        page: pageUrl || '',
+        summary: summary || '',
+      };
+      setLatestEntry(parsedResult);
+    } catch (error) {
+      console.error('Error Summarising:', error);
+      setSnackbarMessage('Error Summarising.');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
-    if (selectedText && pageUrl) {
-      async function getSelectedSummary() {
-        try {
-          await handleSummarization(selectedText!, pageUrl!);
-        } catch (error) {
-          console.error('Error Handling Selected Text:', error);
-        }
-      }
+    // Create the async function inside the useEffect
+    const fetchData = async () => {
+      setLoading(true);
 
-      getSelectedSummary();
-    } else {
-      // Function to get the latest entry based on timestamp
-      async function getLatestEntry() {
-        try {
+      try {
+        // Get selected text and page URL from local storage
+        const result = await new Promise<any>((resolve, reject) => {
+          chrome.storage.local.get(
+            ['selectedText', 'pageUrl', 'openTab'],
+            (result) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              }
+              resolve(result);
+            }
+          );
+        });
+
+        const { selectedText, pageUrl, openTab } = result;
+
+        if (selectedText && pageUrl && openTab) {
+          setEditableText(selectedText);
+
+          // Summarize the text
+          const summary = await handleSummarization(selectedText, pageUrl);
+          const entry = {
+            text: selectedText || '',
+            page: pageUrl || '',
+            summary: summary || '',
+          };
+          setLatestEntry(entry);
+          console.log('Remove openTab');
+          await chrome.storage.local.remove([
+            'openTab',
+            'selectedText',
+            'openUrl',
+          ]);
+
+          console.log('after remove opentab');
+        } else {
+          // If no selectedText or pageUrl, get the latest entry from local storage
           const items = await chrome.storage.local.get(null);
           const entries = Object.values(items);
 
@@ -150,15 +190,19 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
 
           setLatestEntry(latest);
           setEditableText(latest.text);
-        } catch (error) {
-          console.error('Error retrieving latest entry:', error);
         }
+      } catch (error) {
+        console.error('Error retrieving data or summarizing:', error);
+        setSnackbarMessage('Error retrieving or summarizing data');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      getLatestEntry();
-    }
+    fetchData();
   }, []);
-
   return (
     <Stack
       spacing={0}
@@ -183,20 +227,30 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
           Summarizer
         </Typography>
         {/* Summarised Text Field */}
-        <TextField
-          fullWidth
-          multiline
-          maxRows={8}
-          variant='outlined'
-          value={latestEntry ? latestEntry.summary : ''}
-          id='summarized'
-          sx={{
-            '& textarea': {
-              // Hides the typing indicator (caret) for multiline TextField
-              caretColor: 'transparent',
-            },
-          }}
-        />
+        {loading ? (
+          // Loading
+          <Box sx={{ width: '100%' }}>
+            <Skeleton />
+            <Skeleton />
+            <Skeleton />
+          </Box>
+        ) : (
+          // Summarised Content
+          <TextField
+            fullWidth
+            multiline
+            maxRows={8}
+            variant='outlined'
+            value={latestEntry ? latestEntry.summary : ''}
+            id='summarized'
+            sx={{
+              '& textarea': {
+                // Hides the typing indicator (caret) for multiline TextField
+                caretColor: 'transparent',
+              },
+            }}
+          />
+        )}
 
         {/* Link to copy summarized text */}
         <Box
@@ -254,7 +308,12 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
           }}
         >
           {/* Left-aligned icons */}
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 0.5,
+            }}
+          >
             {/* TODO: Syncing Summary  */}
             <Tooltip title='Sync summaries'>
               <IconButton disabled={latestEntry === null}>
@@ -290,17 +349,22 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
           </Box>
 
           {/* Right-aligned Summarise icon */}
-          <Box sx={{ display: 'flex', gap: 0.5 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 0.5,
+            }}
+          >
             {/* Download Document */}
-            <Tooltip title='Download as Word Document'>
+            {/* <Tooltip title='Download as Word Document'>
               <IconButton>
                 <DownloadForOffline />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* AI Summarising */}
             <Tooltip title='Summarise'>
-              <IconButton onClick={() => handleSummarise('')}>
+              <IconButton onClick={() => handleSummarise()}>
                 <Send />
               </IconButton>
             </Tooltip>
@@ -312,7 +376,12 @@ const Summarize: React.FC<SummarizeProps> = ({ selectedText, pageUrl }) => {
       <Dialog open={showSumSettings} onClose={() => setShowSumSettings(false)}>
         <DialogTitle>Summarizer Settings</DialogTitle>
         <DialogContent>
-          <Stack spacing={2} sx={{ alignItems: 'center' }}>
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
             <FormControl>
               <Select
                 labelId='summarizer-type-select-label'
