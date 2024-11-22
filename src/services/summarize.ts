@@ -33,8 +33,6 @@ export const createSummarizer = async (
       length,
       title,
     });
-
-    console.log('New summarizer instantiated with context:', context);
   } else {
     console.log('Using cached summarizer with context:', context);
   }
@@ -63,9 +61,7 @@ export const storeSummary = async (
   };
 
   // Store the selected text and its summary in Chrome's local storage
-  chrome.storage.local.set({ [timestamp]: value }, () => {
-    console.log('Selected text stored:', value);
-  });
+  chrome.storage.local.set({ [timestamp]: value });
 
   return summary;
 };

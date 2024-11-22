@@ -117,16 +117,13 @@ const Summarize: React.FC = () => {
     setLoading(true);
     const pageUrl = '';
     try {
-      console.log('Before Handle');
       const summary = await handleSummarization(editableText, pageUrl);
       const parsedResult = {
         text: editableText || '',
         page: pageUrl || '',
         summary: summary || '',
       };
-      console.log('Parsed Result', parsedResult);
       setLatestEntry(parsedResult);
-      console.log('After Handle');
     } catch (error) {
       console.error('Error Summarising:', error);
       setSnackbarMessage('Error Summarising.');
@@ -359,11 +356,11 @@ const Summarize: React.FC = () => {
             }}
           >
             {/* Download Document */}
-            <Tooltip title='Download as Word Document'>
+            {/* <Tooltip title='Download as Word Document'>
               <IconButton>
                 <DownloadForOffline />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* AI Summarising */}
             <Tooltip title='Summarise'>

@@ -75,7 +75,6 @@ const LocalStorage: React.FC = () => {
 
   function isValidDataEntry(entry: any): entry is DataEntry {
     // Check if required fields exist
-    console.log('Entries', entry);
     if (
       typeof entry.page === 'string' &&
       typeof entry.text === 'string' &&
