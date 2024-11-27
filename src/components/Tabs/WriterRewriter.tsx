@@ -18,12 +18,8 @@ import {
   Alert,
 } from '@mui/material';
 import { ContentCopy } from '@mui/icons-material';
-import { writeText, storeWrittenText } from '../../services/write';
-import WriteEntry, {
-  Format,
-  Length,
-  Tone,
-} from '../../interface/WriteEntry.type';
+import { writeText } from '../../services/write';
+import { Format, Length, Tone } from '../../interface/WriteEntry.type';
 
 const WriterRewriter: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -86,14 +82,12 @@ const WriterRewriter: React.FC = () => {
             setOutput(rewriteOutput);
           }
 
-          console.log('Remove openTab');
+          // Remove Local Storage of Data
           await chrome.storage.local.remove([
             'openTab',
             'selectedText',
             'openUrl',
           ]);
-
-          console.log('after remove opentab');
         }
       } catch (error) {
         console.error('Error retrieving data or summarizing:', error);
@@ -108,12 +102,17 @@ const WriterRewriter: React.FC = () => {
     handleWrite();
   }, []);
 
+  // Rewriting Content Functions
   const handleRewrite = async () => {
     setLoading(true);
-
     try {
-      // Rewrite the text
-      const rewriteOutput = await writeText(prompt, context);
+      const rewriteOutput = await writeText(
+        prompt,
+        context,
+        format,
+        tone,
+        length
+      );
       setOutput(rewriteOutput);
     } catch (error) {
       console.error('Error with Rewriter API:', error);

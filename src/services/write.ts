@@ -6,14 +6,6 @@ import ErrorCode from '../interface/ErrorCode';
 let cachedContext: string | null;
 let cachedWriter: any | null;
 
-export const getPageTitle = async (): Promise<string> => {
-  return new Promise((resolve) => {
-    chrome.storage.session.get('pageTitle', (result) => {
-      resolve(result.pageTitle || '');
-    });
-  });
-};
-
 export const storeWrittenText = async (
   timestamp: number,
   title: string,
@@ -21,8 +13,7 @@ export const storeWrittenText = async (
   tone: Tone,
   format: Format,
   length: Length,
-  output: string,
-  rewriteOutput?: string
+  output: string
 ) => {
   const value: WriteEntry = {
     timestamp: timestamp,
@@ -32,7 +23,6 @@ export const storeWrittenText = async (
     format: format,
     length: length,
     output: output,
-    // rewriteOutput?: rewriteOutput,
   };
 
   chrome.storage.local.set({ [timestamp]: value }, () => {
@@ -82,13 +72,12 @@ export const writeText = async (
   tone?: Tone,
   length?: Length
 ) => {
+  // Automatically fall back to default settings
   format = format || 'plain-text';
   tone = tone || 'neutral';
   length = length || 'medium';
 
-  console.log('Creating Writer');
   const writer = await createWriter(format, tone, context, length);
-  console.log('Writer Created');
 
   if (!writer) {
     throw new Error('Writer could not be created.');
@@ -143,22 +132,6 @@ export const handleWriting = async (
     }
 
     return newText;
-
-    // const pageTitle = await getPageTitle();
-    // const tone: Tone = 'neutral';
-    // const format: Format = 'plain-text';
-    // const desiredLength: Length = 'medium';
-
-    // // Store the generated text
-    // await storeWrittenText(
-    //   Date.now(),
-    //   pageTitle,
-    //   selectionText,
-    //   tone,                 // tone: Tone
-    //   format,               // format: Format
-    //   desiredLength,               // length: Length
-    //   newText,              // output: string
-    // );
   } catch (error) {
     console.error('An error occurred during the writing process:', error);
   }

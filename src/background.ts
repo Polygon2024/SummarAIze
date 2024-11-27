@@ -1,7 +1,3 @@
-import { handleSummarization } from './services/summarize';
-
-let cachedContext: string | null = null;
-let cachedSummarizer: any | null = null;
 type MenuItemId = 'summarySelection' | 'replyMessage' | 'rewriteText';
 
 // Create the context menu when the extension is installed
