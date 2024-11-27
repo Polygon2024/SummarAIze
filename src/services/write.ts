@@ -1,27 +1,10 @@
-import WriteEntry from '../interface/WriteEntry.type';
+import WriteEntry, { Tone, Format, Length } from '../interface/WriteEntry.type';
 import { detectLanguageCode, createTranslator } from './translate';
 import { getTranslationOn, getPreferredLanguage } from './setting';
 import ErrorCode from '../interface/ErrorCode';
 
-enum Tone {
-  FORMAL = 'formal',
-  NEUTRAL = 'neutral',
-  CASUAL = 'casual',
-}
-
-enum Format {
-  PLAIN_TEXT = 'plain-text',
-  MARKDOWN = 'markdown',
-}
-
-enum Length {
-  SHORT = 'short',
-  MEDIUM = 'medium',
-  LONG = 'long',
-}
-
-let cachedContext: string | null = null;
-let cachedWriter: any | null = null;
+let cachedContext: string | null;
+let cachedWriter: any | null;
 
 export const getPageTitle = async (): Promise<string> => {
   return new Promise((resolve) => {
@@ -63,9 +46,9 @@ export const isWriterAPISupported = () => {
 };
 
 export const createWriter = async (
-  context?: string,
   style: string,
-  tone: string
+  tone: string,
+  context: string | null
 ) => {
   if (!isWriterAPISupported()) {
     console.error('Writer API is not supported.');
@@ -77,9 +60,9 @@ export const createWriter = async (
 
     // @ts-ignore
     cachedWriter = await ai.writer.create({
-      context: context,
       style: style,
       tone: tone,
+      context: context,
     });
 
     console.log('New writer instantiated with context:', context);
@@ -90,13 +73,15 @@ export const createWriter = async (
   return cachedWriter;
 };
 
+
 export const writeText = async (
     text: string,
-    context?: string,
-    style: string = 'formal',
-    tone: string = 'neutral'
+    context: string | null,
+    format: Format = 'plain-text',
+    tone: Tone = 'neutral',
+    length: Length = 'medium'
   ) => {
-    const writer = await createWriter(context, style, tone);
+    const writer = await createWriter(format, tone, context);
   
     if (!writer) {
       throw new Error('Writer could not be created.');
@@ -111,7 +96,7 @@ export const writeText = async (
   export const handleWriting = async (
     selectionText: string,
     pageUrl: string,
-    context: string
+    context: string | null
   ) => {
     try {
       let textToProcess = selectionText;
@@ -148,15 +133,19 @@ export const writeText = async (
       }
   
       const pageTitle = await getPageTitle();
+      const tone: Tone = 'neutral';
+      const format: Format = 'plain-text';
+      const desiredLength: Length = 'medium';
   
       // Store the generated text
       await storeWrittenText(
+        Date.now(),
         pageTitle,
         selectionText,
-        pageUrl,
-        newText,
-        translatedText,
-        languageCode
+        tone,                 // tone: Tone
+        format,               // format: Format
+        desiredLength,               // length: Length
+        newText,              // output: string
       );
     } catch (error) {
       console.error('An error occurred during the writing process:', error);
