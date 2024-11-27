@@ -155,25 +155,27 @@ const Summarize: React.FC = () => {
 
         const { selectedText, pageUrl, openTab } = result;
 
-        if (selectedText && pageUrl && openTab) {
-          setEditableText(selectedText);
+        if (openTab && openTab === 'summaraizer') {
+          if (selectedText && pageUrl) {
+            setEditableText(selectedText);
 
-          // Summarize the text
-          const summary = await handleSummarization(selectedText, pageUrl);
-          const entry = {
-            text: selectedText || '',
-            page: pageUrl || '',
-            summary: summary || '',
-          };
-          setLatestEntry(entry);
-          console.log('Remove openTab');
-          await chrome.storage.local.remove([
-            'openTab',
-            'selectedText',
-            'openUrl',
-          ]);
+            // Summarize the text
+            const summary = await handleSummarization(selectedText, pageUrl);
+            const entry = {
+              text: selectedText || '',
+              page: pageUrl || '',
+              summary: summary || '',
+            };
+            setLatestEntry(entry);
+            console.log('Remove openTab');
+            await chrome.storage.local.remove([
+              'openTab',
+              'selectedText',
+              'openUrl',
+            ]);
 
-          console.log('after remove opentab');
+            console.log('after remove opentab');
+          }
         } else {
           // If no selectedText or pageUrl, get the latest entry from local storage
           const items = await chrome.storage.local.get(null);

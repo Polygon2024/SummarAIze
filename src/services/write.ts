@@ -22,7 +22,7 @@ export const storeWrittenText = async (
   format: Format,
   length: Length,
   output: string,
-  rewriteOutput?: string,
+  rewriteOutput?: string
 ) => {
   const value: WriteEntry = {
     timestamp: timestamp,
@@ -48,7 +48,8 @@ export const isWriterAPISupported = () => {
 export const createWriter = async (
   style: string,
   tone: string,
-  context: string | null
+  context: string | null,
+  length: string
 ) => {
   if (!isWriterAPISupported()) {
     console.error('Writer API is not supported.');
@@ -63,6 +64,7 @@ export const createWriter = async (
       style: style,
       tone: tone,
       context: context,
+      length: length,
     });
 
     console.log('New writer instantiated with context:', context);
@@ -73,82 +75,91 @@ export const createWriter = async (
   return cachedWriter;
 };
 
-
 export const writeText = async (
-    text: string,
-    context: string | null,
-    format: Format = 'plain-text',
-    tone: Tone = 'neutral',
-    length: Length = 'medium'
-  ) => {
-    const writer = await createWriter(format, tone, context);
-  
-    if (!writer) {
-      throw new Error('Writer could not be created.');
-    }
-  
-    // Use the writer to generate new text with context
-    const newText = await writer.write(text, { context });
-  
-    return newText;
-  };  
+  text: string,
+  context: string | null,
+  format?: Format,
+  tone?: Tone,
+  length?: Length
+) => {
+  format = format || 'plain-text';
+  tone = tone || 'neutral';
+  length = length || 'medium';
 
-  export const handleWriting = async (
-    selectionText: string,
-    pageUrl: string,
-    context: string | null
-  ) => {
-    try {
-      let textToProcess = selectionText;
-  
-      // Detect the language of the selected text
-      const languageCode = await detectLanguageCode(textToProcess);
-      let translatedText: string = '';
-  
-      // Translate non-English text into English if necessary
-      if (
-        languageCode !== 'en' &&
-        languageCode !== ErrorCode.CannotDetect &&
-        languageCode !== ErrorCode.NotSupported
-      ) {
-        const translator = await createTranslator(languageCode, 'en');
-        textToProcess = await translator.translate(textToProcess);
-        translatedText = textToProcess;
-      }
-  
-      // Use the context passed from the component
-      let newText = await writeText(textToProcess, context);
-  
-      // Check if translation to the preferred language is enabled
-      const isTranslationOn = await getTranslationOn();
-  
-      if (
-        isTranslationOn &&
-        languageCode !== ErrorCode.CannotDetect &&
-        languageCode !== ErrorCode.NotSupported
-      ) {
-        const targetLanguage = await getPreferredLanguage();
-        const translator = await createTranslator('en', targetLanguage);
-        newText = await translator.translate(newText);
-      }
-  
-      const pageTitle = await getPageTitle();
-      const tone: Tone = 'neutral';
-      const format: Format = 'plain-text';
-      const desiredLength: Length = 'medium';
-  
-      // Store the generated text
-      await storeWrittenText(
-        Date.now(),
-        pageTitle,
-        selectionText,
-        tone,                 // tone: Tone
-        format,               // format: Format
-        desiredLength,               // length: Length
-        newText,              // output: string
-      );
-    } catch (error) {
-      console.error('An error occurred during the writing process:', error);
+  console.log('Creating Writer');
+  const writer = await createWriter(format, tone, context, length);
+  console.log('Writer Created');
+
+  if (!writer) {
+    throw new Error('Writer could not be created.');
+  }
+
+  // Use the writer to generate new text with context
+  console.log('Writing');
+  const newText = await writer.write(text, { context });
+  console.log('Writing Competed');
+
+  console.log('Return Value', newText);
+
+  return newText;
+};
+
+export const handleWriting = async (
+  selectionText: string,
+  context: string | null
+) => {
+  try {
+    let textToProcess = selectionText;
+
+    // Detect the language of the selected text
+    const languageCode = await detectLanguageCode(textToProcess);
+    let translatedText: string = '';
+
+    // Translate non-English text into English if necessary
+    if (
+      languageCode !== 'en' &&
+      languageCode !== ErrorCode.CannotDetect &&
+      languageCode !== ErrorCode.NotSupported
+    ) {
+      const translator = await createTranslator(languageCode, 'en');
+      textToProcess = await translator.translate(textToProcess);
+      translatedText = textToProcess;
     }
-  };
-  
+
+    // Use the context passed from the component
+    let newText = await writeText(textToProcess, context);
+
+    // Check if translation to the preferred language is enabled
+    const isTranslationOn = await getTranslationOn();
+
+    if (
+      isTranslationOn &&
+      languageCode !== ErrorCode.CannotDetect &&
+      languageCode !== ErrorCode.NotSupported
+    ) {
+      const targetLanguage = await getPreferredLanguage();
+      const translator = await createTranslator('en', targetLanguage);
+      newText = await translator.translate(newText);
+    }
+
+    return newText;
+
+    // const pageTitle = await getPageTitle();
+    // const tone: Tone = 'neutral';
+    // const format: Format = 'plain-text';
+    // const desiredLength: Length = 'medium';
+
+    // // Store the generated text
+    // await storeWrittenText(
+    //   Date.now(),
+    //   pageTitle,
+    //   selectionText,
+    //   tone,                 // tone: Tone
+    //   format,               // format: Format
+    //   desiredLength,               // length: Length
+    //   newText,              // output: string
+    // );
+  } catch (error) {
+    console.error('An error occurred during the writing process:', error);
+  }
+};

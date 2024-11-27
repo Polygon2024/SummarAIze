@@ -19,7 +19,11 @@ import {
 } from '@mui/material';
 import { ContentCopy } from '@mui/icons-material';
 import { writeText, storeWrittenText } from '../../services/write';
-import WriteEntry, { Format, Length, Tone } from '../../interface/WriteEntry.type';
+import WriteEntry, {
+  Format,
+  Length,
+  Tone,
+} from '../../interface/WriteEntry.type';
 
 const WriterRewriter: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -27,92 +31,79 @@ const WriterRewriter: React.FC = () => {
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [tone, setTone] = useState<Tone>('neutral');
   const [format, setFormat] = useState<Format>('plain-text');
+  const [tone, setTone] = useState<Tone>('neutral');
   const [length, setLength] = useState<Length>('medium');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
+    'success'
+  );
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
   // Load selected text on component mount
   useEffect(() => {
-    chrome.storage.local.get('selectedText', (result) => {
-      if (result.selectedText) {
-        setPrompt(result.selectedText);
-        // Optionally remove the stored text after loading
-        chrome.storage.local.remove('selectedText');
-        // Immediately call the write function with default settings
-        handleWrite(result.selectedText, context, tone, format, length);
-      }
-    });
-  }, []);
+    const handleWrite = async () => {
+      setLoading(true);
 
-  const handleWrite = async (
-    promptText = prompt,
-    contextText = context,
-    toneSetting = tone,
-    formatSetting = format,
-    lengthSetting = length
-  ) => {
-    if (!promptText.trim()) {
-      alert('Please enter a prompt.');
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage('');
-
-    try {
-      const result = await writeText(
-        promptText,
-        contextText,
-        formatSetting,
-        toneSetting,
-        lengthSetting
-      );
-      setOutput(result);
-
-      const getPageTitle = async (): Promise<string> => {
-        return new Promise((resolve) => {
-          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (tabs.length === 0) {
-              resolve('');
-              return;
+      try {
+        // Get selected text from local storage
+        const result = await new Promise<any>((resolve, reject) => {
+          chrome.storage.local.get(['selectedText', 'openTab'], (result) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
             }
-            const activeTab = tabs[0];
-            chrome.tabs.sendMessage(
-              activeTab.id!,
-              { type: 'GET_PAGE_TITLE' },
-              (response) => {
-                if (chrome.runtime.lastError) {
-                  console.error(chrome.runtime.lastError);
-                  resolve('');
-                } else {
-                  resolve(response.title || '');
-                }
-              }
-            );
+            resolve(result);
           });
         });
-      };
 
-      // Optional: Store the generated text
-      const timestamp = Date.now();
-      const pageTitle = await getPageTitle(); // You may need to implement this or provide a value
+        const { selectedText, openTab } = result;
 
-      await storeWrittenText(
-        timestamp,
-        pageTitle,
-        promptText,
-        toneSetting,
-        formatSetting,
-        lengthSetting,
-        result
-      );
+        if (openTab && openTab === 'replyMessage') {
+          if (selectedText) {
+            setPrompt(selectedText);
+            const initContext = `Draft reply message`;
+            setContext(initContext);
+
+            // Rewrite the text
+            const rewriteOutput = await writeText(selectedText, initContext);
+            setOutput(rewriteOutput);
+          }
+
+          console.log('Remove openTab');
+          await chrome.storage.local.remove([
+            'openTab',
+            'selectedText',
+            'openUrl',
+          ]);
+
+          console.log('after remove opentab');
+        }
+      } catch (error) {
+        console.error('Error retrieving data or summarizing:', error);
+        setSnackbarMessage('Error retrieving or summarizing data');
+        setSnackbarSeverity('error');
+        setOpenSnackbar(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    handleWrite();
+  }, []);
+
+  const handleRewrite = async () => {
+    setLoading(true);
+
+    try {
+      // Rewrite the text
+      const rewriteOutput = await writeText(prompt, context);
+      setOutput(rewriteOutput);
     } catch (error) {
-      console.error('Error during writing process:', error);
-      setErrorMessage('An error occurred while generating text.');
+      console.error('Error with Rewriter API:', error);
+      setSnackbarMessage('Error with Rewriter API');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     } finally {
       setLoading(false);
     }
@@ -148,7 +139,7 @@ const WriterRewriter: React.FC = () => {
         alignItems: 'center',
         height: '100%',
         padding: 2,
-        overflowY: 'auto', // Add scroll if content overflows
+        overflowY: 'auto',
       }}
     >
       <Typography variant='h4' gutterBottom>
@@ -215,7 +206,7 @@ const WriterRewriter: React.FC = () => {
       <Button
         variant='contained'
         color='primary'
-        onClick={() => handleWrite()}
+        onClick={() => handleRewrite()}
         disabled={loading}
         sx={{ marginTop: 2 }}
       >

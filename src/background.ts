@@ -2,7 +2,7 @@ import { handleSummarization } from './services/summarize';
 
 let cachedContext: string | null = null;
 let cachedSummarizer: any | null = null;
-type MenuItemId = 'summarySelection' | 'writeRewrite';
+type MenuItemId = 'summarySelection' | 'replyMessage';
 
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
@@ -15,8 +15,8 @@ chrome.runtime.onInstalled.addListener(() => {
 
   // Add another context menu for text selection: Write/Rewrite
   chrome.contextMenus.create({
-    id: 'writeRewrite',
-    title: 'Write / Rewrite',
+    id: 'replyMessage',
+    title: 'Draft Message Replies',
     contexts: ['selection'], // Context is text selection
   });
 });
@@ -44,12 +44,12 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         height: 540,
       });
     }
-  } else if (menuItemId === 'writeRewrite') {
+  } else if (menuItemId === 'replyMessage') {
     if (info.selectionText) {
       // Save the selected text and target tab to local storage
       chrome.storage.local.set({
         selectedText: info.selectionText,
-        openTab: 'writerRewriter', 
+        openTab: 'replyMessage',
       });
 
       // Open the popup (index.html)
