@@ -14,10 +14,10 @@ import {
   Box,
   CircularProgress,
 } from '@mui/material';
-import supportedLanguages from '../../data/supportedLanguages';
-import { getUserSettings, updateUserSettings } from '../../services/setting';
+import supportedLanguages from '../data/supportedLanguages';
+import { getUserSettings, updateUserSettings } from '../services/setting';
 
-const Settings: React.FC = () => {
+const SettingsDialog: React.FC = () => {
   // Snackbar state for success or error messages
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -66,7 +66,6 @@ const Settings: React.FC = () => {
     const fetchUserSettings = async () => {
       try {
         const userSettings = await getUserSettings();
-        console.log('US', userSettings);
         setTranslationOn(userSettings.translationOn);
         setPreferredLanguage(userSettings.preferredLanguage);
       } catch (error) {
@@ -156,4 +155,4 @@ const Settings: React.FC = () => {
   );
 };
 
-export default Settings;
+export default SettingsDialog;

@@ -25,9 +25,6 @@ export const detectLanguageCode = async (text: string) => {
   const results = await detector.detect(text);
   const topResult = results[0];
 
-  console.log('top language result:', topResult.detectedLanguage);
-  console.log(topResult);
-
   if (!(topResult.detectedLanguage in supportedLanguages)) {
     return ErrorCode.NotSupported;
   }
@@ -42,7 +39,6 @@ export const createTranslator = async (
   targetLanguage: string
 ) => {
   if (!isTranslatorAPISupported()) {
-    console.log('Translator API is not supported.');
     return null;
   } else if (
     // @ts-ignore: Ignore "Cannot find name 'translation'" error
