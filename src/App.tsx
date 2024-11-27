@@ -18,7 +18,7 @@ const App: React.FC = () => {
     chrome.storage.local.get(['openTab'], (result) => {
       if (result.openTab === 'summarizer') {
         setSelectedTab(0);
-      } else if (result.openTab === 'replyMessage') {
+      } else if (['replyMessage', 'rewriteText'].includes(result.openTab)) {
         setSelectedTab(1);
       }
     });

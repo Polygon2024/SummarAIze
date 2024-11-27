@@ -35,9 +35,9 @@ const WriterRewriter: React.FC = () => {
   const [tone, setTone] = useState<Tone>('neutral');
   const [length, setLength] = useState<Length>('medium');
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
-    'success'
-  );
+  const [snackbarSeverity, setSnackbarSeverity] = useState<
+    'success' | 'error' | 'info'
+  >('success');
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
 
@@ -59,11 +59,27 @@ const WriterRewriter: React.FC = () => {
 
         const { selectedText, openTab } = result;
 
-        if (openTab && openTab === 'replyMessage') {
+        if (openTab && ['replyMessage', 'rewriteText'].includes(openTab)) {
           if (selectedText) {
+            // Defining the Context Basing on the Context Menu Action
             setPrompt(selectedText);
-            const initContext = `Draft reply message`;
+            const initContext =
+              openTab === 'replyMessage'
+                ? 'Draft reply message'
+                : openTab === 'rewriteText'
+                ? ''
+                : '';
             setContext(initContext);
+
+            // Exit Early if context doesn't exist
+            if (!initContext) {
+              setSnackbarMessage(
+                'Please add the context value before generating new content'
+              );
+              setSnackbarSeverity('info');
+              setOpenSnackbar(true);
+              return;
+            }
 
             // Rewrite the text
             const rewriteOutput = await writeText(selectedText, initContext);
@@ -142,9 +158,11 @@ const WriterRewriter: React.FC = () => {
         overflowY: 'auto',
       }}
     >
+      {/* Title */}
       <Typography variant='h4' gutterBottom>
         Writer/Rewriter
       </Typography>
+      {/* Prompt Field */}
       <TextField
         label='Prompt'
         variant='outlined'
@@ -154,6 +172,7 @@ const WriterRewriter: React.FC = () => {
         onChange={(e) => setPrompt(e.target.value)}
         sx={{ width: '80%', marginBottom: 2 }}
       />
+      {/* Context Field */}
       <TextField
         label='Context'
         variant='outlined'
@@ -163,6 +182,7 @@ const WriterRewriter: React.FC = () => {
         onChange={(e) => setContext(e.target.value)}
         sx={{ width: '80%', marginBottom: 2 }}
       />
+      {/* API Settings */}
       <Box sx={{ width: '80%', marginTop: 2 }}>
         <Typography variant='h6'>Advanced Settings:</Typography>
         <FormControl fullWidth sx={{ marginBottom: 2 }}>
@@ -203,6 +223,7 @@ const WriterRewriter: React.FC = () => {
           </Select>
         </FormControl>
       </Box>
+      {/* Execute Buttons */}
       <Button
         variant='contained'
         color='primary'
@@ -220,6 +241,8 @@ const WriterRewriter: React.FC = () => {
           {errorMessage}
         </Typography>
       )}
+
+      {/* Output Displays */}
       {output && (
         <Box sx={{ width: '80%', marginTop: 2 }}>
           <Typography variant='h6'>Output:</Typography>
@@ -253,6 +276,7 @@ const WriterRewriter: React.FC = () => {
         </Box>
       )}
 
+      {/* Displays of Original Text */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
         <DialogTitle>Original Selected Text</DialogTitle>
         <DialogContent>
@@ -263,7 +287,7 @@ const WriterRewriter: React.FC = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Snackbar for copy success */}
+      {/* Alert Snackbars */}
       <Snackbar
         open={openSnackbar}
         autoHideDuration={6000}
