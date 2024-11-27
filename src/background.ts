@@ -49,7 +49,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       // Save the selected text and target tab to local storage
       chrome.storage.local.set({
         selectedText: info.selectionText,
-        openTab: 'writer/rewriter',
+        openTab: 'writerRewriter', 
       });
 
       // Open the popup (index.html)
