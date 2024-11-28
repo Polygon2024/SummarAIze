@@ -67,7 +67,6 @@ const AppContent: React.FC = () => {
             maxWidth: '800px',
             display: 'flex',
             marginX: 'auto',
-            // justifyContent: 'center',
           }}
         >
           {selectedTab === 0 && <Summarize />}

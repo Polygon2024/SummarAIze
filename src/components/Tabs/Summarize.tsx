@@ -48,10 +48,8 @@ type LatestEntry = {
   summary: string;
 } | null;
 
-const testContent = `A complex issue Climate change impacts our society in many different ways. Drought can harm food production and human health. Flooding can lead to spread of disease, death, and damage ecosystems and infrastructure. Human health issues that result from drought, flooding, and other weather conditions increase the death rate, change food availability, and limit how much a worker can get done, and ultimately the productivity of our economy. Climate change affects everyone, but the impacts are uneven across the country and around the world. Even within one community, climate change can affect one neighborhood or person more than another. Long-standing differences in income and opportunity, or socioeconomic inequalities, can make some groups more vulnerable. Communities that have less access to resources to protect themselves or cope with impacts are often the same communities that are also more exposed to hazards.
-`;
-
 const Summarize: React.FC = () => {
+  const { darkMode } = useThemeContext();
   const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
@@ -65,7 +63,6 @@ const Summarize: React.FC = () => {
   );
 
   const [editableText, setEditableText] = useState<string>('');
-  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
 
   // State for alerts
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
@@ -73,13 +70,26 @@ const Summarize: React.FC = () => {
   );
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
 
-  const SummariserDropdownStyle = {
+  const SummarizerDropdownStyle = {
     width: '140px',
     height: '28px',
   };
 
-  const { darkMode } = useThemeContext();
+  const MenuProps = {
+    PaperProps: {
+      sx: {
+        backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+        '& .MuiMenuItem-root': {
+          color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+          '&:hover': {
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+          },
+        },
+      },
+    },
+  };
 
   // Handler for editable text change
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -216,7 +226,7 @@ const Summarize: React.FC = () => {
       <Stack spacing={1}>
         {/* Title */}
         <Typography
-          variant='h6'
+          variant='h4'
           sx={{
             width: '100%',
             textAlign: 'center',
@@ -370,8 +380,18 @@ const Summarize: React.FC = () => {
       </Stack>
 
       {/* Dialog for Summarizer Settings */}
-      <Dialog open={showSumSettings} onClose={() => setShowSumSettings(false)}>
-        <DialogTitle>Summarizer Settings</DialogTitle>
+      <Dialog
+        open={showSumSettings}
+        onClose={() => setShowSumSettings(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: darkMode ? Grays.Gray6 : Grays.White,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Summarizer Settings
+        </DialogTitle>
         <DialogContent>
           <Stack
             spacing={2}
@@ -387,7 +407,13 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerType(e.target.value as AISummarizerType)
                 }
-                sx={SummariserDropdownStyle}
+                sx={{
+                  ...SummarizerDropdownStyle,
+                  '& .MuiFormControlLabel-label': {
+                    color: darkMode ? Grays.White : Blue.Blue7,
+                  },
+                }}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerType).map((type) => (
                   <MenuItem key={type} value={type}>
@@ -405,7 +431,8 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerFormat(e.target.value as AISummarizerFormat)
                 }
-                sx={SummariserDropdownStyle}
+                sx={SummarizerDropdownStyle}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerFormat).map((format) => (
                   <MenuItem key={format} value={format}>
@@ -423,7 +450,8 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerLength(e.target.value as AISummarizerLength)
                 }
-                sx={SummariserDropdownStyle}
+                sx={SummarizerDropdownStyle}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerLength).map((length) => (
                   <MenuItem key={length} value={length}>

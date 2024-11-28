@@ -186,8 +186,18 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
       </Box>
 
       {/* Dialog for Settings */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Settings</DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: darkMode ? Grays.Gray6 : Grays.White,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Settings
+        </DialogTitle>
         <DialogContent>
           <SettingsDialog />
         </DialogContent>

@@ -16,10 +16,30 @@ import {
   Tooltip,
   Snackbar,
   Alert,
+  Stack,
 } from '@mui/material';
-import { ContentCopy } from '@mui/icons-material';
+import { Close, ContentCopy, Tune } from '@mui/icons-material';
 import { writeText } from '../../services/write';
 import { Format, Length, Tone } from '../../interface/WriteEntry.type';
+import { Blue, Grays } from '../../theme/color';
+import { useThemeContext } from '../../context/ThemeContext';
+
+enum AIWriterTone {
+  'formal' = 'formal',
+  'neutral' = 'neutral',
+  'casual' = 'casual',
+}
+
+enum AIWriterFormat {
+  'plain-text' = 'plain-text',
+  'markdown' = 'markdown',
+}
+
+enum AIWriterLength {
+  'short' = 'short',
+  'medium' = 'medium',
+  'long' = 'long',
+}
 
 const WriterRewriter: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -36,6 +56,40 @@ const WriterRewriter: React.FC = () => {
   >('success');
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const { darkMode } = useThemeContext();
+  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
+  const [writerTone, setWriterTone] = useState<AIWriterTone>(
+    AIWriterTone['neutral']
+  );
+  const [writerFormat, setWriterFormat] = useState<AIWriterFormat>(
+    AIWriterFormat['plain-text']
+  );
+  const [writerLength, setWriterLength] = useState<AIWriterLength>(
+    AIWriterLength['medium']
+  );
+
+  const WriterDropdownStyle = {
+    width: '160px',
+    height: '28px',
+    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none', // Removes the outline
+    },
+  };
+
+  const MenuProps = {
+    PaperProps: {
+      sx: {
+        backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+        '& .MuiMenuItem-root': {
+          color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+          '&:hover': {
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+          },
+        },
+      },
+    },
+  };
 
   // Load selected text on component mount
   useEffect(() => {
@@ -152,13 +206,21 @@ const WriterRewriter: React.FC = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
+        width: '100%',
         height: '100%',
         padding: 2,
-        overflowY: 'auto',
       }}
     >
       {/* Title */}
-      <Typography variant='h4' gutterBottom>
+      <Typography
+        variant='h4'
+        sx={{
+          width: '100%',
+          textAlign: 'center',
+          color: darkMode ? Grays.White : Blue.Blue7,
+        }}
+        gutterBottom
+      >
         Writer/Rewriter
       </Typography>
       {/* Prompt Field */}
@@ -169,7 +231,11 @@ const WriterRewriter: React.FC = () => {
         rows={4}
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
-        sx={{ width: '80%', marginBottom: 2 }}
+        sx={{
+          width: '80%',
+          marginBottom: 2,
+          backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+        }}
       />
       {/* Context Field */}
       <TextField
@@ -179,12 +245,18 @@ const WriterRewriter: React.FC = () => {
         rows={4}
         value={context}
         onChange={(e) => setContext(e.target.value)}
-        sx={{ width: '80%', marginBottom: 2 }}
+        sx={{
+          width: '80%',
+          marginBottom: 2,
+          backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+        }}
       />
+
+      {/* TODO */}
       {/* API Settings */}
-      <Box sx={{ width: '80%', marginTop: 2 }}>
+      {/* <Stack spacing={2} sx={{ width: '80%', marginTop: 2 }}>
         <Typography variant='h6'>Advanced Settings:</Typography>
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+        <FormControl fullWidth>
           <InputLabel>Tone</InputLabel>
           <Select
             value={tone}
@@ -194,10 +266,9 @@ const WriterRewriter: React.FC = () => {
             <MenuItem value='neutral'>Neutral</MenuItem>
             <MenuItem value='formal'>Formal</MenuItem>
             <MenuItem value='informal'>Informal</MenuItem>
-            {/* Add more tones as needed */}
           </Select>
         </FormControl>
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+        <FormControl fullWidth>
           <InputLabel>Format</InputLabel>
           <Select
             value={format}
@@ -206,10 +277,9 @@ const WriterRewriter: React.FC = () => {
           >
             <MenuItem value='plain-text'>Plain Text</MenuItem>
             <MenuItem value='markdown'>Markdown</MenuItem>
-            {/* Add more formats as needed */}
           </Select>
         </FormControl>
-        <FormControl fullWidth sx={{ marginBottom: 2 }}>
+        <FormControl fullWidth>
           <InputLabel>Length</InputLabel>
           <Select
             value={length}
@@ -221,7 +291,8 @@ const WriterRewriter: React.FC = () => {
             <MenuItem value='long'>Long</MenuItem>
           </Select>
         </FormControl>
-      </Box>
+      </Stack> */}
+
       {/* Execute Buttons */}
       <Button
         variant='contained'
@@ -232,14 +303,6 @@ const WriterRewriter: React.FC = () => {
       >
         {loading ? 'Rewriting...' : 'Rewrite'}
       </Button>
-      <Button variant='text' onClick={() => setDialogOpen(true)}>
-        View Original Text
-      </Button>
-      {errorMessage && (
-        <Typography variant='body2' color='error' sx={{ marginTop: 1 }}>
-          {errorMessage}
-        </Typography>
-      )}
 
       {/* Output Displays */}
       {output && (
@@ -275,14 +338,124 @@ const WriterRewriter: React.FC = () => {
         </Box>
       )}
 
-      {/* Displays of Original Text */}
-      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
-        <DialogTitle>Original Selected Text</DialogTitle>
+      {/* Left-aligned icons */}
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 0.5,
+        }}
+      >
+        {/* Toggle Summarizer Settings */}
+        <Tooltip title='Summarizer Settings'>
+          <Tooltip title='Summarizer Settings'>
+            <IconButton
+              onClick={() => setShowSumSettings(true)}
+              color='primary'
+            >
+              <Tune />
+            </IconButton>
+          </Tooltip>
+        </Tooltip>
+      </Box>
+
+      {/* Dialog for Summarizer Settings */}
+      <Dialog
+        open={showSumSettings}
+        onClose={() => setShowSumSettings(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: darkMode ? Grays.Gray6 : Grays.White,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Writer Settings
+        </DialogTitle>
         <DialogContent>
-          <Typography variant='body1'>{prompt}</Typography>
+          <Stack
+            spacing={2}
+            sx={{
+              alignItems: 'center',
+            }}
+          >
+            <FormControl>
+              <Select
+                labelId='writer-type-select-label'
+                id='writer-type-select'
+                value={writerTone}
+                onChange={(e) => setWriterTone(e.target.value as AIWriterTone)}
+                sx={WriterDropdownStyle}
+                MenuProps={MenuProps}
+              >
+                {Object.values(AIWriterTone).map((type) => (
+                  <MenuItem key={type} value={type}>
+                    {type}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <Select
+                labelId='writer-format-select-label'
+                id='writer-format-select'
+                value={writerFormat}
+                onChange={(e) =>
+                  setWriterFormat(e.target.value as AIWriterFormat)
+                }
+                sx={WriterDropdownStyle}
+                MenuProps={MenuProps}
+              >
+                {Object.values(AIWriterFormat).map((format) => (
+                  <MenuItem key={format} value={format}>
+                    {format}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl>
+              <Select
+                labelId='writer-length-select-label'
+                id='writer-length-select'
+                value={writerLength}
+                onChange={(e) =>
+                  setWriterLength(e.target.value as AIWriterLength)
+                }
+                sx={WriterDropdownStyle}
+                MenuProps={MenuProps}
+              >
+                {Object.values(AIWriterLength).map((length) => (
+                  <MenuItem key={length} value={length}>
+                    {length}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Stack>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDialogOpen(false)}>Close</Button>
+        <DialogActions sx={{ display: 'flex', m: 'auto' }}>
+          <Button
+            variant='contained'
+            onClick={() => setShowSumSettings(false)}
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
+              minWidth: '90px',
+              flexGrow: 1,
+            }}
+          >
+            Save
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => setShowSumSettings(false)}
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
+              width: 'fit-content',
+            }}
+          >
+            <Close />
+          </Button>
         </DialogActions>
       </Dialog>
 
