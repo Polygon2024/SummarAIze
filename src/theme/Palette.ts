@@ -34,9 +34,9 @@ const Palette = {
 const LightPalette = {
   mode: 'light' as PaletteMode,
   text: {
-    primary: Grays.Gray04,
-    secondary: Grays.Gray03,
-    inactive: Grays.Gray03,
+    primary: Grays.Gray4,
+    secondary: Grays.Gray3,
+    inactive: Grays.Gray3,
     contrast: Grays.White,
     disabled: Grays.Black,
   },
@@ -51,11 +51,11 @@ const LightPalette = {
 const DarkPalette = {
   mode: 'dark' as PaletteMode,
   text: {
-    primary: Grays.Gray02,
-    secondary: Grays.Gray03,
-    inactive: Grays.Gray02,
-    contrast: Grays.Gray04,
-    disabled: Grays.Gray02,
+    primary: Grays.Gray2,
+    secondary: Grays.Gray3,
+    inactive: Grays.Gray2,
+    contrast: Grays.Gray4,
+    disabled: Grays.Gray2,
   },
   border: {
     primary: Grays.White,

@@ -20,7 +20,7 @@ import {
   DriveFileRenameOutline,
   HelpOutline,
 } from '@mui/icons-material';
-import { Blue } from '../theme/color';
+import { Blue, Grays } from '../theme/color';
 import SettingsDialog from './SettingsDialog';
 import DarkModeSwitch from './UI/DarkModeSwitch';
 import { useThemeContext } from '../context/ThemeContext';
@@ -80,7 +80,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
       sx={{
         position: 'fixed',
         width: 'fit-content',
-        backgroundColor: darkMode ? Blue.Blue7 : Blue.Blue5,
+        backgroundColor: darkMode ? Grays.Gray6 : Blue.Blue5,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -107,11 +107,24 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
               key={tab.key}
               sx={{
                 ...TabsStyling,
-                backgroundColor:
-                  value === tab.key ? `${Blue.Blue6} !important` : 'none',
+                backgroundColor: (() => {
+                  if (value === tab.key) {
+                    return darkMode
+                      ? `${Grays.Gray4} !important`
+                      : `${Blue.Blue3} !important`;
+                  }
+                  return 'none';
+                })(),
                 '&:hover': {
-                  color: value === tab.key ? Blue.Blue1 : Blue.Blue6,
-                  backgroundColor: Blue.Blue5,
+                  color: (() => {
+                    if (value === tab.key) {
+                      return darkMode
+                        ? `${Grays.White} !important`
+                        : `${Blue.Blue1} !important`;
+                    }
+                    return darkMode ? Grays.Gray3 : Blue.Blue2;
+                  })(),
+                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
                 },
               }}
             >
@@ -144,11 +157,24 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
                 key={tab.key}
                 sx={{
                   ...TabsStyling,
-                  backgroundColor:
-                    value === tab.key ? `${Blue.Blue4} !important` : 'none',
+                  backgroundColor: (() => {
+                    if (value === tab.key) {
+                      return darkMode
+                        ? `${Grays.Gray4} !important`
+                        : `${Blue.Blue3} !important`;
+                    }
+                    return 'none';
+                  })(),
                   '&:hover': {
-                    color: value === tab.key ? Blue.Blue1 : Blue.Blue6,
-                    backgroundColor: Blue.Blue5,
+                    color: (() => {
+                      if (value === tab.key) {
+                        return darkMode
+                          ? `${Grays.White} !important`
+                          : `${Blue.Blue1} !important`;
+                      }
+                      return darkMode ? Grays.Gray3 : Blue.Blue2;
+                    })(),
+                    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
                   },
                 }}
               >

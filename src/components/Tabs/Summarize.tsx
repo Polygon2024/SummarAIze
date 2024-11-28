@@ -16,19 +16,19 @@ import {
   DialogContent,
   DialogTitle,
   Button,
-  CircularProgress,
   Skeleton,
 } from '@mui/material';
 import {
   Close,
   ContentCopy,
-  DownloadForOffline,
   Launch,
   Send,
   Sync,
   Tune,
 } from '@mui/icons-material';
 import { handleSummarization } from '../../services/summarize';
+import { Blue, Grays } from '../../theme/color';
+import { useThemeContext } from '../../context/ThemeContext';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -84,6 +84,8 @@ const Summarize: React.FC = () => {
     width: '140px',
     height: '28px',
   };
+
+  const { darkMode } = useThemeContext();
 
   // Handler for editable text change
   const handleTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -213,6 +215,7 @@ const Summarize: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100%',
+        width: '100%',
       }}
     >
       {/* Top section */}
@@ -223,7 +226,7 @@ const Summarize: React.FC = () => {
           sx={{
             width: '100%',
             textAlign: 'center',
-            textDecoration: 'underline',
+            color: darkMode ? Blue.Blue1 : Blue.Blue7,
           }}
         >
           Summarizer
@@ -243,9 +246,14 @@ const Summarize: React.FC = () => {
             multiline
             maxRows={8}
             variant='outlined'
-            value={latestEntry ? latestEntry.summary : ''}
+            value={latestEntry ? latestEntry.summary : 'Test'}
             id='summarized'
             sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              '& .MuiInputBase-input': {
+                color: darkMode ? Grays.White : Blue.Blue7,
+                opacity: 1,
+              },
               '& textarea': {
                 // Hides the typing indicator (caret) for multiline TextField
                 caretColor: 'transparent',
@@ -292,10 +300,16 @@ const Summarize: React.FC = () => {
           placeholder={'Enter a paragraph here'}
           id='prompt'
           sx={{
-            borderRadius: '15px',
+            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
             width: '100%',
             '& .MuiInputBase-root': {
               borderRadius: '15px',
+            },
+            '& .MuiInputBase-input': {
+              color: darkMode ? Grays.White : Blue.Blue7,
+            },
+            '& .MuiInputBase-input::placeholder': {
+              color: darkMode ? Grays.White : Blue.Blue7,
             },
           }}
         />
@@ -316,13 +330,6 @@ const Summarize: React.FC = () => {
               gap: 0.5,
             }}
           >
-            {/* TODO: Syncing Summary  */}
-            <Tooltip title='Sync summaries'>
-              <IconButton disabled={latestEntry === null}>
-                <Sync />
-              </IconButton>
-            </Tooltip>
-
             {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
@@ -365,7 +372,7 @@ const Summarize: React.FC = () => {
             </Tooltip> */}
 
             {/* AI Summarising */}
-            <Tooltip title='Summarise'>
+            <Tooltip title='Summarize'>
               <IconButton onClick={() => handleSummarise()}>
                 <Send />
               </IconButton>

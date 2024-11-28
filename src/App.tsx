@@ -11,6 +11,7 @@ import {
   ThemeProvider as ThemeContextProvider,
   useThemeContext,
 } from './context/ThemeContext';
+import { Grays } from './theme/color';
 
 const App: React.FC = () => {
   return (
@@ -50,13 +51,25 @@ const AppContent: React.FC = () => {
           height: '100vh',
           overflowY: 'auto',
           overflowX: 'hidden',
+          backgroundColor: darkMode ? Grays.Gray5 : Grays.White,
         }}
       >
         {/* Left Tab Section */}
         <TabsSection value={selectedTab} onTabChange={handleTabChange} />
 
         {/* Main Content Area */}
-        <Box sx={{ flexGrow: 1, padding: 2, ml: '36px' }}>
+        <Box sx={{ ml: '48px !important' }}> </Box>
+
+        <Box
+          sx={{
+            flexGrow: 1,
+            padding: 2,
+            maxWidth: '800px',
+            display: 'flex',
+            marginX: 'auto',
+            // justifyContent: 'center',
+          }}
+        >
           {selectedTab === 0 && <Summarize />}
           {selectedTab === 1 && <WriterRewriter />}
           {selectedTab === 2 && <LocalStorage />}

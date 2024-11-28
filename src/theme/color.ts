@@ -11,11 +11,11 @@ const Blue = {
 
 const Grays = {
   White: '#FFFFFF',
-  Gray02: '#E1E1E1',
-  Gray03: '#8A8A8A',
-  Gray04: '#363635',
-  Gray05: '#292929',
-  Gray06: '#1A1A1A',
+  Gray2: '#E1E1E1',
+  Gray3: '#8A8A8A',
+  Gray4: '#363635',
+  Gray5: '#292929',
+  Gray6: '#1A1A1A',
   Black: '#000000',
 };
 
