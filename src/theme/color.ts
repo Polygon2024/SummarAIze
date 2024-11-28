@@ -9,4 +9,14 @@ const Blue = {
   Blue7: '#133F4D',
 };
 
-export { Blue };
+const Grays = {
+  Gray07: '#000000',
+  Gray06: '#1A1A1A',
+  Gray05: '#292929',
+  Gray04: '#363635',
+  Gray03: '#8A8A8A',
+  Gray02: '#E1E1E1',
+  Gray01: '#FFFFFF',
+};
+
+export { Blue, Grays };

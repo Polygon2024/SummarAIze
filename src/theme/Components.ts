@@ -5,7 +5,7 @@ import Divider from './components/Divider';
 import Appbar from './components/AppBar';
 import TextFieldTheme from './components/TextField';
 
-const components: Components<Omit<Theme, 'components'>> = {
+const Components: Components<Omit<Theme, 'components'>> = {
   ...Button,
   ...(Appbar as Components<Omit<Theme, 'components'>>),
   ...(Divider as Components<Omit<Theme, 'components'>>),
@@ -13,4 +13,4 @@ const components: Components<Omit<Theme, 'components'>> = {
   ...(TextFieldTheme as Components<Omit<Theme, 'components'>>),
 };
 
-export default components;
+export default Components;

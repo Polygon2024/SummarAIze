@@ -1,6 +1,6 @@
 import { createTheme } from '@mui/material';
-import Palette from './Palette';
-import components from './Components';
+import { LightPalette, DarkPalette } from './Palette';
+import Components from './Components';
 
 // Header's Styling
 export const HeaderStyling = {
@@ -41,9 +41,16 @@ const CommonTypography = {
   fontWeightBold: 800,
 };
 
-const Theme = createTheme({
-  palette: Palette,
-  ...CommonTypography,
-  components: components,
+export const LightTheme = createTheme({
+  palette: LightPalette,
+  components: Components,
+  typography: CommonTypography,
 });
-export default Theme;
+
+export const DarkTheme = createTheme({
+  palette: DarkPalette,
+  components: Components,
+  typography: CommonTypography,
+});
+
+export default LightTheme;
