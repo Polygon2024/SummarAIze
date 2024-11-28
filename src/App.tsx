@@ -6,7 +6,6 @@ import WriterRewriter from './components/Tabs/WriterRewriter';
 import LocalStorage from './components/Tabs/LocalStorage';
 import SyncStorage from './components/Tabs/SyncStorage';
 import Guide from './components/Tabs/Guide';
-// import { useThemeContext } from './context/ThemeContext';
 import LightTheme, { DarkTheme } from './theme/Theme';
 import {
   ThemeProvider as ThemeContextProvider,
@@ -69,4 +68,4 @@ const AppContent: React.FC = () => {
   );
 };
 
-export default AppContent;
+export default App;
