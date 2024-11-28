@@ -56,7 +56,8 @@ export const getPreferredLanguage = (): Promise<string> => {
       if (chrome.runtime.lastError) {
         reject(chrome.runtime.lastError); // Reject the promise on error
       } else {
-        const preferredLanguage: string = result?.userSettings?.preferredLanguage ?? 'en';
+        const preferredLanguage: string =
+          result?.userSettings?.preferredLanguage ?? 'en';
         resolve(preferredLanguage); // Resolve the promise with the value of preferredLanguage
       }
     });
