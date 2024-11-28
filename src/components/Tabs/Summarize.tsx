@@ -17,15 +17,9 @@ import {
   DialogTitle,
   Button,
   Skeleton,
+  InputAdornment,
 } from '@mui/material';
-import {
-  Close,
-  ContentCopy,
-  Launch,
-  Send,
-  Sync,
-  Tune,
-} from '@mui/icons-material';
+import { Close, ContentCopy, Launch, Send, Tune } from '@mui/icons-material';
 import { handleSummarization } from '../../services/summarize';
 import { Blue, Grays } from '../../theme/color';
 import { useThemeContext } from '../../context/ThemeContext';
@@ -226,7 +220,7 @@ const Summarize: React.FC = () => {
           sx={{
             width: '100%',
             textAlign: 'center',
-            color: darkMode ? Blue.Blue1 : Blue.Blue7,
+            color: darkMode ? Grays.White : Blue.Blue7,
           }}
         >
           Summarizer
@@ -308,9 +302,17 @@ const Summarize: React.FC = () => {
             '& .MuiInputBase-input': {
               color: darkMode ? Grays.White : Blue.Blue7,
             },
-            '& .MuiInputBase-input::placeholder': {
-              color: darkMode ? Grays.White : Blue.Blue7,
-            },
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position='end'>
+                <Tooltip title='Summarize'>
+                  <IconButton onClick={handleSummarise}>
+                    <Send />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            ),
           }}
         />
 
@@ -357,27 +359,13 @@ const Summarize: React.FC = () => {
             </Tooltip>
           </Box>
 
-          {/* Right-aligned Summarise icon */}
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 0.5,
-            }}
-          >
-            {/* Download Document */}
-            {/* <Tooltip title='Download as Word Document'>
+          {/* TODO */}
+          {/* Download Document */}
+          {/* <Tooltip title='Download as Word Document'>
               <IconButton>
                 <DownloadForOffline />
               </IconButton>
             </Tooltip> */}
-
-            {/* AI Summarising */}
-            <Tooltip title='Summarize'>
-              <IconButton onClick={() => handleSummarise()}>
-                <Send />
-              </IconButton>
-            </Tooltip>
-          </Box>
         </Box>
       </Stack>
 
