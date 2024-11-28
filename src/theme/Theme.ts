@@ -4,12 +4,12 @@ import Components from './Components';
 
 // Header's Styling
 export const HeaderStyling = {
-  fontFamily: "'Open Sans', Arial, sans-serif",
+  fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   fontWeight: '600',
 };
 
 const CommonTypography = {
-  fontFamily: "'Open Sans', Arial, sans-serif",
+  fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   h1: { ...HeaderStyling },
   h2: { ...HeaderStyling },
   h3: { ...HeaderStyling },
@@ -18,25 +18,25 @@ const CommonTypography = {
   h6: { ...HeaderStyling },
 
   body1: {
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   body2: {
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   caption: {
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   button: {
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   subtitle1: {
     fontSize: '12px',
     color: 'gray',
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   subtitle2: {
     fontSize: '12px',
-    fontFamily: "'Open Sans', Arial, sans-serif",
+    fontFamily: "'Be Vietnam Pro', Arial, sans-serif",
   },
   fontWeightBold: 800,
 };

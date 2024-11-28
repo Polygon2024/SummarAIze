@@ -21,7 +21,6 @@ import {
   HelpOutline,
 } from '@mui/icons-material';
 import { Blue } from '../theme/color';
-import { TabBaseStyle } from '../theme/components/Tabs';
 import SettingsDialog from './SettingsDialog';
 import DarkModeSwitch from './UI/DarkModeSwitch';
 import { useThemeContext } from '../context/ThemeContext';
