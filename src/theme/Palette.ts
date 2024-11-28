@@ -37,8 +37,8 @@ const LightPalette = {
     primary: Grays.Gray04,
     secondary: Grays.Gray03,
     inactive: Grays.Gray03,
-    contrast: Grays.Gray01,
-    disabled: Grays.Gray07,
+    contrast: Grays.White,
+    disabled: Grays.Black,
   },
   // background: {
   //   default: Grays.Gray01,
@@ -58,7 +58,7 @@ const DarkPalette = {
     disabled: Grays.Gray02,
   },
   border: {
-    primary: Grays.Gray01,
+    primary: Grays.White,
   },
   // background: {
   //   default: Grays.Gray05,

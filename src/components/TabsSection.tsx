@@ -24,6 +24,7 @@ import { Blue } from '../theme/color';
 import { TabBaseStyle } from '../theme/components/Tabs';
 import SettingsDialog from './SettingsDialog';
 import DarkModeSwitch from './UI/DarkModeSwitch';
+import { useThemeContext } from '../context/ThemeContext';
 
 interface TabsSectionProps {
   value: number;
@@ -73,13 +74,14 @@ const TabsStyling = {
 
 const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const { darkMode } = useThemeContext();
 
   return (
     <Box
       sx={{
         position: 'fixed',
         width: 'fit-content',
-        backgroundColor: Blue.Blue7,
+        backgroundColor: darkMode ? Blue.Blue7 : Blue.Blue5,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -106,9 +108,8 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
               key={tab.key}
               sx={{
                 ...TabsStyling,
-                color: value === tab.key ? Blue.Blue1 : Blue.Blue3,
                 backgroundColor:
-                  value === tab.key ? `${Blue.Blue4} !important` : 'none',
+                  value === tab.key ? `${Blue.Blue6} !important` : 'none',
                 '&:hover': {
                   color: value === tab.key ? Blue.Blue1 : Blue.Blue6,
                   backgroundColor: Blue.Blue5,
@@ -121,7 +122,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
         ))}
       </Tabs>
 
-      <>
+      <Box>
         <DarkModeSwitch />
         <Tabs
           orientation='vertical'
@@ -144,7 +145,6 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
                 key={tab.key}
                 sx={{
                   ...TabsStyling,
-                  color: value === tab.key ? Blue.Blue1 : Blue.Blue3,
                   backgroundColor:
                     value === tab.key ? `${Blue.Blue4} !important` : 'none',
                   '&:hover': {
@@ -158,7 +158,7 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
             </Tooltip>
           ))}
         </Tabs>
-      </>
+      </Box>
 
       {/* Dialog for Settings */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>

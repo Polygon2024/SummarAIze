@@ -10,12 +10,12 @@ const DarkModeSwitch: React.FC = () => {
   const { darkMode, toggleDarkMode } = useThemeContext();
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', marginRight: '10px' }}>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <IconButton onClick={toggleDarkMode}>
         {darkMode ? (
-          <LightModeIcon sx={{ color: Grays.Gray02 }} />
+          <LightModeIcon />
         ) : (
-          <ModeNightIcon />
+          <ModeNightIcon sx={{ color: Grays.White }} />
         )}
       </IconButton>
     </Box>
