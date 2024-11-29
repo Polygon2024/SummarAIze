@@ -17,8 +17,10 @@ import {
   Snackbar,
   Alert,
   Stack,
+  Skeleton,
+  InputAdornment,
 } from '@mui/material';
-import { Close, ContentCopy, Tune } from '@mui/icons-material';
+import { Close, ContentCopy, Launch, Send, Tune } from '@mui/icons-material';
 import { writeText } from '../../services/write';
 import { Format, Length, Tone } from '../../interface/WriteEntry.type';
 import { Blue, Grays } from '../../theme/color';
@@ -201,30 +203,81 @@ const WriterRewriter: React.FC = () => {
   };
 
   return (
-    <Box
+    <Stack
+      spacing={0}
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        width: '100%',
+        justifyContent: 'space-between',
         height: '100%',
-        padding: 2,
+        width: '100%',
       }}
     >
-      {/* Title */}
-      <Typography
-        variant='h4'
-        sx={{
-          width: '100%',
-          textAlign: 'center',
-          color: darkMode ? Grays.White : Blue.Blue7,
-        }}
-        gutterBottom
-      >
-        Writer/Rewriter
-      </Typography>
+      {/* Top section */}
+      <Stack spacing={1}>
+        {/* Title */}
+        <Typography
+          variant='h4'
+          sx={{
+            width: '100%',
+            textAlign: 'center',
+            color: darkMode ? Grays.White : Blue.Blue7,
+          }}
+        >
+          Writer/Rewriter
+        </Typography>
+        {/* Written Content Text Field */}
+        {loading ? (
+          // Loading
+          <Box sx={{ width: '100%' }}>
+            <Skeleton />
+            <Skeleton />
+            <Skeleton />
+          </Box>
+        ) : (
+          // Rewritten Content
+          <TextField
+            fullWidth
+            multiline
+            maxRows={8}
+            variant='outlined'
+            value={output ? output : ''}
+            id='summarized'
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              '& .MuiInputBase-input': {
+                color: darkMode ? Grays.White : Blue.Blue7,
+                opacity: 1,
+              },
+              '& textarea': {
+                // Hides the typing indicator (caret) for multiline TextField
+                caretColor: 'transparent',
+              },
+            }}
+          />
+        )}
+
+        {/* Link to copy summarized text */}
+        <Box
+          sx={{
+            textAlign: 'right',
+            mt: '0 !important',
+          }}
+        >
+          <Tooltip title='Copy Content'>
+            <IconButton
+              size='small'
+              onClick={() => copyToClipboard(output)}
+              disabled={!output}
+            >
+              <ContentCopy fontSize='inherit' />
+            </IconButton>
+          </Tooltip>
+        </Box>
+      </Stack>
+
       {/* Prompt Field */}
-      <TextField
+      {/* <TextField
         label='Prompt'
         variant='outlined'
         multiline
@@ -236,9 +289,10 @@ const WriterRewriter: React.FC = () => {
           marginBottom: 2,
           backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
         }}
-      />
+      /> */}
+
       {/* Context Field */}
-      <TextField
+      {/* <TextField
         label='Context'
         variant='outlined'
         multiline
@@ -250,113 +304,75 @@ const WriterRewriter: React.FC = () => {
           marginBottom: 2,
           backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
         }}
-      />
+      /> */}
 
-      {/* TODO */}
-      {/* API Settings */}
-      {/* <Stack spacing={2} sx={{ width: '80%', marginTop: 2 }}>
-        <Typography variant='h6'>Advanced Settings:</Typography>
-        <FormControl fullWidth>
-          <InputLabel>Tone</InputLabel>
-          <Select
-            value={tone}
-            label='Tone'
-            onChange={(e) => setTone(e.target.value as Tone)}
-          >
-            <MenuItem value='neutral'>Neutral</MenuItem>
-            <MenuItem value='formal'>Formal</MenuItem>
-            <MenuItem value='informal'>Informal</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Format</InputLabel>
-          <Select
-            value={format}
-            label='Format'
-            onChange={(e) => setFormat(e.target.value as Format)}
-          >
-            <MenuItem value='plain-text'>Plain Text</MenuItem>
-            <MenuItem value='markdown'>Markdown</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel>Length</InputLabel>
-          <Select
-            value={length}
-            label='Length'
-            onChange={(e) => setLength(e.target.value as Length)}
-          >
-            <MenuItem value='short'>Short</MenuItem>
-            <MenuItem value='medium'>Medium</MenuItem>
-            <MenuItem value='long'>Long</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack> */}
-
-      {/* Execute Buttons */}
-      <Button
-        variant='contained'
-        color='primary'
-        onClick={() => handleRewrite()}
-        disabled={loading}
-        sx={{ marginTop: 2 }}
+      {/* Bottom section */}
+      <Stack
+        spacing={0.5}
+        sx={{
+          display: 'absolute',
+          bottom: 0,
+        }}
       >
-        {loading ? 'Rewriting...' : 'Rewrite'}
-      </Button>
+        {/* Input Text Field */}
+        <TextField
+          fullWidth
+          multiline
+          maxRows={3}
+          variant='outlined'
+          onChange={(e) => setPrompt(e.target.value)}
+          value={prompt}
+          placeholder={'Enter a paragraph here'}
+          id='prompt'
+          sx={{
+            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            width: '100%',
+            '& .MuiInputBase-root': {
+              borderRadius: '15px',
+            },
+            '& .MuiInputBase-input': {
+              color: darkMode ? Grays.White : Blue.Blue7,
+            },
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position='end'>
+                <Tooltip title='Summarize'>
+                  <IconButton
+                    disabled={loading}
+                    onClick={() => handleRewrite()}
+                  >
+                    <Send />
+                  </IconButton>
+                </Tooltip>
+              </InputAdornment>
+            ),
+          }}
+        />
 
-      {/* Output Displays */}
-      {output && (
-        <Box sx={{ width: '80%', marginTop: 2 }}>
-          <Typography variant='h6'>Output:</Typography>
-          <TextField
-            variant='outlined'
-            multiline
-            rows={6}
-            value={output}
-            InputProps={{
-              readOnly: true,
-            }}
-            sx={{ width: '100%' }}
-          />
-          {/* Copy to clipboard IconButton */}
-          <Box
-            sx={{
-              textAlign: 'right',
-              mt: '0 !important',
-            }}
-          >
-            <Tooltip title='Copy Content'>
+        {/* Icon Buttons */}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}
+        >
+          {/* Left-aligned icons */}
+          <Box sx={{ display: 'flex' }}>
+            {/* Toggle Writer Settings */}
+            <Tooltip title='Writer Settings'>
               <IconButton
-                size='small'
-                onClick={() => copyToClipboard(output)}
-                disabled={!output}
+                onClick={() => setShowSumSettings(true)}
+                color='primary'
               >
-                <ContentCopy fontSize='inherit' />
+                <Tune />
               </IconButton>
             </Tooltip>
           </Box>
         </Box>
-      )}
-
-      {/* Left-aligned icons */}
-      <Box
-        sx={{
-          display: 'flex',
-          gap: 0.5,
-        }}
-      >
-        {/* Toggle Summarizer Settings */}
-        <Tooltip title='Summarizer Settings'>
-          <Tooltip title='Summarizer Settings'>
-            <IconButton
-              onClick={() => setShowSumSettings(true)}
-              color='primary'
-            >
-              <Tune />
-            </IconButton>
-          </Tooltip>
-        </Tooltip>
-      </Box>
+      </Stack>
 
       {/* Dialog for Summarizer Settings */}
       <Dialog
@@ -469,7 +485,7 @@ const WriterRewriter: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-    </Box>
+    </Stack>
   );
 };
 

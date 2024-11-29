@@ -235,6 +235,7 @@ const Summarize: React.FC = () => {
         >
           Summarizer
         </Typography>
+
         {/* Summarised Text Field */}
         {loading ? (
           // Loading
@@ -250,7 +251,7 @@ const Summarize: React.FC = () => {
             multiline
             maxRows={8}
             variant='outlined'
-            value={latestEntry ? latestEntry.summary : 'Test'}
+            value={latestEntry ? latestEntry.summary : ''}
             id='summarized'
             sx={{
               backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
@@ -317,7 +318,7 @@ const Summarize: React.FC = () => {
             endAdornment: (
               <InputAdornment position='end'>
                 <Tooltip title='Summarize'>
-                  <IconButton onClick={handleSummarise}>
+                  <IconButton disabled={loading} onClick={handleSummarise}>
                     <Send />
                   </IconButton>
                 </Tooltip>
@@ -358,14 +359,12 @@ const Summarize: React.FC = () => {
 
             {/* Toggle Summarizer Settings */}
             <Tooltip title='Summarizer Settings'>
-              <Tooltip title='Summarizer Settings'>
-                <IconButton
-                  onClick={() => setShowSumSettings(true)}
-                  color='primary'
-                >
-                  <Tune />
-                </IconButton>
-              </Tooltip>
+              <IconButton
+                onClick={() => setShowSumSettings(true)}
+                color='primary'
+              >
+                <Tune />
+              </IconButton>
             </Tooltip>
           </Box>
 
