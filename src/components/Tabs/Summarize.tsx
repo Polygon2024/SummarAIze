@@ -161,7 +161,7 @@ const Summarize: React.FC = () => {
 
         const { selectedText, pageUrl, openTab } = result;
 
-        if (openTab && openTab === 'summaraizer') {
+        if (openTab && openTab === 'summarizer') {
           if (selectedText && pageUrl) {
             setEditableText(selectedText);
 

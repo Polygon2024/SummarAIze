@@ -91,6 +91,7 @@ export const handleSummarization = async (
   selectionText: string,
   pageUrl: string
 ) => {
+  console.log('Start Handle Summarize');
   let textToBeSummarised = selectionText;
   // Preferred Language from Settings
   const targetLanguage = await getPreferredLanguage();
@@ -101,6 +102,7 @@ export const handleSummarization = async (
   // if the language of the text and preferred language are different, translate the to the preferred language
   let translatedText: string = '';
 
+  console.log('test 1');
   if (
     languageCode !== targetLanguage &&
     languageCode !== ErrorCode.CannotDetect &&
@@ -110,6 +112,7 @@ export const handleSummarization = async (
     translatedText = await translator.translate(textToBeSummarised);
   }
 
+  console.log('test 2');
   // Translate non-English text into English first (summarisation API limits to English io).
   // we assume the text is English by default (e.g. in case of an error)
   if (
@@ -124,8 +127,11 @@ export const handleSummarization = async (
     textToBeSummarised = await translator.translate(textToBeSummarised);
   }
 
+  console.log('test3');
+
   let summary = await summarize(textToBeSummarised);
 
+  console.log('summary');
   // obtain translation details
   const isTranslationOn = await getTranslationOn();
 
@@ -139,6 +145,7 @@ export const handleSummarization = async (
     summary = await translator.translate(summary);
   }
 
+  console.log('test4');
   const pageTitle = await getPageTitle();
 
   const result = await storeSummary(
@@ -150,5 +157,6 @@ export const handleSummarization = async (
     languageCode
   );
 
+  console.log('result');
   return result;
 };

@@ -28,16 +28,16 @@ const AppContent: React.FC = () => {
     setSelectedTab(newValue);
   };
 
-  // useEffect(() => {
-  //   // Check if a specific tab should be opened
-  //   chrome.storage.local.get(['openTab'], (result) => {
-  //     if (result.openTab === 'summarizer') {
-  //       setSelectedTab(0);
-  //     } else if (['replyMessage', 'rewriteText'].includes(result.openTab)) {
-  //       setSelectedTab(1);
-  //     }
-  //   });
-  // }, []);
+  useEffect(() => {
+    // Check if a specific tab should be opened
+    chrome.storage.local.get(['openTab'], (result) => {
+      if (result.openTab === 'summarizer') {
+        setSelectedTab(0);
+      } else if (['replyMessage', 'rewriteText'].includes(result.openTab)) {
+        setSelectedTab(1);
+      }
+    });
+  }, []);
 
   return (
     <ThemeProvider theme={darkMode ? DarkTheme : LightTheme}>
