@@ -349,7 +349,7 @@ const Summarize: React.FC = () => {
             {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
-                disabled={latestEntry === null}
+                disabled={!latestEntry || !latestEntry.page}
                 onClick={() => {
                   if (latestEntry?.page) {
                     window.open(latestEntry.page, '_blank');

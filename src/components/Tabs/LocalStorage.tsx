@@ -517,20 +517,22 @@ const TextDetails: React.FC<{
       >
         {DataEntry.page !== '' && (
           <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
-            <Link
-              href={DataEntry.page}
-              target='_blank'
-              sx={{
-                color: darkMode ? Blue.Blue4 : Blue.Blue6,
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 0.5,
-              }}
-            >
-              <OpenInNew />
-              <strong>URL Link:</strong> {DataEntry.page}
-            </Link>
+            <Tooltip title={DataEntry.page}>
+              <Link
+                href={DataEntry.page}
+                target='_blank'
+                sx={{
+                  color: darkMode ? Blue.Blue4 : Blue.Blue6,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                <OpenInNew />
+                <strong>Click to Open Article Link</strong>
+              </Link>
+            </Tooltip>
           </Typography>
         )}
 
