@@ -276,21 +276,6 @@ const WriterRewriter: React.FC = () => {
         </Box>
       </Stack>
 
-      {/* Prompt Field */}
-      {/* <TextField
-        label='Prompt'
-        variant='outlined'
-        multiline
-        rows={4}
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        sx={{
-          width: '80%',
-          marginBottom: 2,
-          backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-        }}
-      /> */}
-
       {/* Context Field */}
       {/* <TextField
         label='Context'
