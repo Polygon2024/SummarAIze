@@ -12,6 +12,7 @@ import {
   useThemeContext,
 } from './context/ThemeContext';
 import { Grays } from './theme/color';
+import '../src/css/scrollbar.css';
 
 const App: React.FC = () => {
   return (
