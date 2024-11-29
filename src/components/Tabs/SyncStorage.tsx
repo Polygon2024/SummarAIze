@@ -366,7 +366,7 @@ const SyncStorage: React.FC = () => {
         >
           <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
             There are no Data Entries Available at the moment. Please use the
-            Summarise Feature to add data to the storage.
+            Summarize Feature to add data to the storage.
           </Typography>
         </Box>
       )}

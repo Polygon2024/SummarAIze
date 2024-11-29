@@ -2,10 +2,10 @@ type MenuItemId = 'summarySelection' | 'replyMessage' | 'rewriteText';
 
 // Create the context menu when the extension is installed
 chrome.runtime.onInstalled.addListener(() => {
-  // Add the context menu for text selection: Summarise
+  // Add the context menu for text selection: Summarize
   chrome.contextMenus.create({
     id: 'summarySelection',
-    title: 'Summarise',
+    title: 'Summarize',
     contexts: ['selection'], // Context is text selection
   });
 
@@ -30,11 +30,11 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
 
   if (menuItemId === 'summarySelection') {
     if (info.selectionText) {
-      let textToBeSummarised = info.selectionText;
+      let textToBeSummarized = info.selectionText;
 
       // Save the selected text and target tab to local storage
       chrome.storage.local.set({
-        selectedText: textToBeSummarised,
+        selectedText: textToBeSummarized,
         pageUrl: info.pageUrl,
         openTab: 'summarizer',
       });

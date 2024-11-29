@@ -97,12 +97,12 @@ export const handleSummarization = async (
   pageUrl: string
 ) => {
   console.log('Start Handle Summarize');
-  let textToBeSummarised = selectionText;
+  let textToBeSummarized = selectionText;
   // Preferred Language from Settings
   const targetLanguage = await getPreferredLanguage();
 
   // detect the language of the selected text, and translate it to English first if necessary
-  const languageCode = await detectLanguageCode(textToBeSummarised);
+  const languageCode = await detectLanguageCode(textToBeSummarized);
 
   // if the language of the text and preferred language are different, translate the to the preferred language
   let translatedText: string = '';
@@ -114,7 +114,7 @@ export const handleSummarization = async (
     languageCode !== ErrorCode.NotSupported
   ) {
     const translator = await createTranslator(languageCode, targetLanguage);
-    translatedText = await translator.translate(textToBeSummarised);
+    translatedText = await translator.translate(textToBeSummarized);
   }
 
   console.log('test 2');
@@ -129,12 +129,12 @@ export const handleSummarization = async (
   ) {
     // 1st Layer Translation to English
     const translator = await createTranslator(languageCode, 'en');
-    textToBeSummarised = await translator.translate(textToBeSummarised);
+    textToBeSummarized = await translator.translate(textToBeSummarized);
   }
 
   console.log('test3');
 
-  let summary = await summarize(textToBeSummarised);
+  let summary = await summarize(textToBeSummarized);
 
   console.log('summary');
   // obtain translation details
