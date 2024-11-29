@@ -290,59 +290,62 @@ const Summarize: React.FC = () => {
       <Stack
         spacing={0.5}
         sx={{
-          display: 'absolute',
-          bottom: 0,
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Input Text Field */}
-        <TextField
-          fullWidth
-          multiline
-          maxRows={3}
-          variant='outlined'
-          onChange={handleTextChange}
-          value={editableText !== null ? editableText : ''}
-          placeholder={'Enter a paragraph here'}
-          id='prompt'
-          sx={{
-            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-            width: '100%',
-            '& .MuiInputBase-root': {
-              borderRadius: '15px',
-            },
-            '& .MuiInputBase-input': {
-              color: darkMode ? Grays.White : Blue.Blue7,
-            },
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position='end'>
-                <Tooltip title='Summarize'>
-                  <IconButton disabled={loading} onClick={handleSummarise}>
-                    <Send />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        {/* Icon Buttons */}
         <Box
           sx={{
+            position: 'relative',
+            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            px: 1,
+            pt: 1,
+            pb: 0.5,
+            borderRadius: '15px',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
+            flexDirection: 'column',
           }}
         >
-          {/* Left-aligned icons */}
+          {/* Input Text Field */}
+          <TextField
+            fullWidth
+            multiline
+            maxRows={3}
+            variant='outlined'
+            onChange={handleTextChange}
+            value={editableText !== null ? editableText : ''}
+            placeholder={'Enter content here'}
+            id='prompt'
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              width: '100%',
+              '& .MuiInputBase-root': {
+                borderRadius: '15px',
+              },
+              '& .MuiInputBase-input': {
+                color: darkMode ? Grays.White : Blue.Blue7,
+              },
+            }}
+          />
+
+          {/* Icon Buttons */}
           <Box
             sx={{
               display: 'flex',
-              gap: 0.5,
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              marginTop: 0.5,
             }}
           >
+            {/* TODO */}
+            {/* Download Document */}
+            {/* <Tooltip title='Download as Word Document'>
+              <IconButton>
+                <DownloadForOffline />
+              </IconButton>
+            </Tooltip> */}
+
             {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
@@ -357,24 +360,20 @@ const Summarize: React.FC = () => {
               </IconButton>
             </Tooltip>
 
-            {/* Toggle Summarizer Settings */}
+            {/* Settings Icon */}
             <Tooltip title='Summarizer Settings'>
-              <IconButton
-                onClick={() => setShowSumSettings(true)}
-                color='primary'
-              >
+              <IconButton onClick={() => setShowSumSettings(true)}>
                 <Tune />
               </IconButton>
             </Tooltip>
-          </Box>
 
-          {/* TODO */}
-          {/* Download Document */}
-          {/* <Tooltip title='Download as Word Document'>
-              <IconButton>
-                <DownloadForOffline />
+            {/* Send Icon */}
+            <Tooltip title='Send'>
+              <IconButton disabled={loading} onClick={handleSummarise}>
+                <Send />
               </IconButton>
-            </Tooltip> */}
+            </Tooltip>
+          </Box>
         </Box>
       </Stack>
 

@@ -71,17 +71,22 @@ export const summarize = async (
   type: string = 'key-points',
   length: string = 'short'
 ) => {
+  console.log('Summarize Func');
   // Get the current context
   const context = await getPageTitle();
   const title = context;
 
+  console.log('create Summarizer');
   // Create a summarizer only if the context has changed
   const summarizer = await createSummarizer(context, type, length, title);
 
+  console.log('Summarizer Created', summarizer);
   // Perform the summarization
   const summary = await summarizer.summarize(text, {
     context,
   });
+
+  console.log('Summary is: ', summary);
 
   return summary;
 };

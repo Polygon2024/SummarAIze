@@ -7,7 +7,6 @@ import {
   Select,
   MenuItem,
   FormControl,
-  InputLabel,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,9 +17,8 @@ import {
   Alert,
   Stack,
   Skeleton,
-  InputAdornment,
 } from '@mui/material';
-import { Close, ContentCopy, Launch, Send, Tune } from '@mui/icons-material';
+import { Close, ContentCopy, Send, Tune } from '@mui/icons-material';
 import { writeText } from '../../services/write';
 import { Format, Length, Tone } from '../../interface/WriteEntry.type';
 import { Blue, Grays } from '../../theme/color';
@@ -295,64 +293,66 @@ const WriterRewriter: React.FC = () => {
       <Stack
         spacing={0.5}
         sx={{
-          display: 'absolute',
-          bottom: 0,
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Input Text Field */}
-        <TextField
-          fullWidth
-          multiline
-          maxRows={3}
-          variant='outlined'
-          onChange={(e) => setPrompt(e.target.value)}
-          value={prompt}
-          placeholder={'Enter a paragraph here'}
-          id='prompt'
-          sx={{
-            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-            width: '100%',
-            '& .MuiInputBase-root': {
-              borderRadius: '15px',
-            },
-            '& .MuiInputBase-input': {
-              color: darkMode ? Grays.White : Blue.Blue7,
-            },
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position='end'>
-                <Tooltip title='Summarize'>
-                  <IconButton
-                    disabled={loading}
-                    onClick={() => handleRewrite()}
-                  >
-                    <Send />
-                  </IconButton>
-                </Tooltip>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        {/* Icon Buttons */}
+        {/* Outer Box with background and padding */}
         <Box
           sx={{
+            position: 'relative',
+            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            px: 1,
+            pt: 1,
+            pb: 0.5,
+            borderRadius: '15px',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
+            flexDirection: 'column',
           }}
         >
-          {/* Left-aligned icons */}
-          <Box sx={{ display: 'flex' }}>
-            {/* Toggle Writer Settings */}
+          {/* Input Text Field */}
+          <TextField
+            fullWidth
+            multiline
+            maxRows={3}
+            variant='outlined'
+            onChange={(e) => setPrompt(e.target.value)}
+            value={prompt}
+            placeholder='Enter a content here'
+            id='prompt'
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              width: '100%',
+              '& .MuiInputBase-root': {
+                borderRadius: '15px',
+              },
+              '& .MuiInputBase-input': {
+                color: darkMode ? Grays.White : Blue.Blue7,
+              },
+            }}
+          />
+
+          {/* Icon Buttons */}
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              marginTop: 0.5,
+            }}
+          >
+            {/* Settings Icon */}
             <Tooltip title='Writer Settings'>
-              <IconButton
-                onClick={() => setShowSumSettings(true)}
-                color='primary'
-              >
+              <IconButton onClick={() => setShowSumSettings(true)}>
                 <Tune />
+              </IconButton>
+            </Tooltip>
+
+            {/* Send Icon */}
+            <Tooltip title='Send'>
+              <IconButton disabled={loading} onClick={() => handleRewrite()}>
+                <Send />
               </IconButton>
             </Tooltip>
           </Box>
