@@ -54,6 +54,9 @@ enum AIWriterLength {
 }
 
 const WriterRewriter: React.FC = () => {
+  const { darkMode } = useThemeContext();
+  const primaryText = darkMode ? Grays.White : Blue.Blue7;
+
   const [defaultContexts, setDefaultContexts] = useState<string[]>([
     'Rewrite this paragraph in simpler words',
     'Write your own context...',
@@ -63,7 +66,6 @@ const WriterRewriter: React.FC = () => {
     'Write a professional email regarding...',
     'Avoid any toxic language and be as constructive as possible.',
     'Rewrite this paragraph in a more formal tone.',
-    'Generate a concise summary of the provided text.',
     'Provide constructive feedback on the document.',
     'Suggest improvements to make this more engaging.',
   ]);
@@ -87,7 +89,6 @@ const WriterRewriter: React.FC = () => {
   >('success');
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const { darkMode } = useThemeContext();
   const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
   const [writerTone, setWriterTone] = useState<AIWriterTone>(
     AIWriterTone['neutral']
@@ -100,6 +101,7 @@ const WriterRewriter: React.FC = () => {
   );
 
   const WriterDropdownStyle = {
+    color: primaryText,
     width: '160px',
     height: '28px',
     backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
@@ -276,12 +278,9 @@ const WriterRewriter: React.FC = () => {
   };
 
   // Context Toggler
-  const handleToggle = () => {
-    // if (contextEnabled) {
-    //   setContext('Rewrite this paragraph in simpler words');
-    // }
-    setContextEnabled(!contextEnabled);
-  };
+  // const handleToggle = () => {
+  //   setContextEnabled(!contextEnabled);
+  // };
 
   // Close Snackbar
   const handleCloseSnackbar = () => {
@@ -307,7 +306,7 @@ const WriterRewriter: React.FC = () => {
           sx={{
             width: '100%',
             textAlign: 'center',
-            color: darkMode ? Grays.White : Blue.Blue7,
+            color: primaryText,
           }}
         >
           Writer/Rewriter
@@ -559,82 +558,94 @@ const WriterRewriter: React.FC = () => {
           },
         }}
       >
-        <DialogTitle
-          sx={{
-            color: darkMode ? Grays.White : Blue.Blue7,
-          }}
-        >
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
           Writer Settings
         </DialogTitle>
         <DialogContent>
-          <Stack
-            spacing={2}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <FormControl>
-              <Select
-                labelId='writer-type-select-label'
-                id='writer-type-select'
-                value={writerTone}
-                onChange={(e) => setWriterTone(e.target.value as AIWriterTone)}
-                sx={WriterDropdownStyle}
-                MenuProps={MenuProps}
+          <Stack spacing={2} sx={{ alignItems: 'center' }}>
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AIWriterTone).map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Tone:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='writer-type-select-label'
+                  id='writer-type-select'
+                  value={writerTone}
+                  onChange={(e) =>
+                    setWriterTone(e.target.value as AIWriterTone)
+                  }
+                  sx={WriterDropdownStyle}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AIWriterTone).map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
 
-            <FormControl>
-              <Select
-                labelId='writer-format-select-label'
-                id='writer-format-select'
-                value={writerFormat}
-                onChange={(e) =>
-                  setWriterFormat(e.target.value as AIWriterFormat)
-                }
-                sx={WriterDropdownStyle}
-                MenuProps={MenuProps}
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AIWriterFormat).map((format) => (
-                  <MenuItem key={format} value={format}>
-                    {format}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Format:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='writer-format-select-label'
+                  id='writer-format-select'
+                  value={writerFormat}
+                  onChange={(e) =>
+                    setWriterFormat(e.target.value as AIWriterFormat)
+                  }
+                  sx={WriterDropdownStyle}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AIWriterFormat).map((format) => (
+                    <MenuItem key={format} value={format}>
+                      {format}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
 
-            <FormControl>
-              <Select
-                labelId='writer-length-select-label'
-                id='writer-length-select'
-                value={writerLength}
-                onChange={(e) =>
-                  setWriterLength(e.target.value as AIWriterLength)
-                }
-                sx={WriterDropdownStyle}
-                MenuProps={MenuProps}
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AIWriterLength).map((length) => (
-                  <MenuItem key={length} value={length}>
-                    {length}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Length:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='writer-length-select-label'
+                  id='writer-length-select'
+                  value={writerLength}
+                  onChange={(e) =>
+                    setWriterLength(e.target.value as AIWriterLength)
+                  }
+                  sx={WriterDropdownStyle}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AIWriterLength).map((length) => (
+                    <MenuItem key={length} value={length}>
+                      {length}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
           </Stack>
         </DialogContent>
-        <DialogActions
-          sx={{
-            display: 'flex',
-            m: 'auto',
-          }}
-        >
+        <DialogActions sx={{ display: 'flex', m: 'auto' }}>
           <Button
             variant='contained'
             onClick={() => setShowSumSettings(false)}

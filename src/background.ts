@@ -44,7 +44,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         url: chrome.runtime.getURL('index.html'),
         type: 'popup',
         width: 640,
-        height: 540,
+        height: 556,
       });
     }
   } else if (['replyMessage', 'rewriteText'].includes(menuItemId)) {

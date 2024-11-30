@@ -260,11 +260,8 @@ const LocalStorage: React.FC = () => {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'column',
           justifyContent: 'center',
-          alignItems: 'center',
-          textAlign: 'center',
-          height: '100vh',
+          m: 'auto',
         }}
       >
         <CircularProgress disableShrink />

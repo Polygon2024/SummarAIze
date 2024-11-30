@@ -46,8 +46,8 @@ const AppContent: React.FC = () => {
       <Box
         sx={{
           display: 'flex',
-          minWidth: '800px',
-          minHeight: '580px',
+          minWidth: '620px',
+          minHeight: '520px',
           width: '100vw',
           height: '100vh',
           overflowY: 'auto',
