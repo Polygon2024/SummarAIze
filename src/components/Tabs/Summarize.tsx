@@ -17,7 +17,6 @@ import {
   DialogTitle,
   Button,
   Skeleton,
-  InputAdornment,
 } from '@mui/material';
 import { Close, ContentCopy, Launch, Send, Tune } from '@mui/icons-material';
 import { handleSummarization } from '../../services/summarize';
@@ -50,7 +49,10 @@ type LatestEntry = {
 
 const Summarize: React.FC = () => {
   const { darkMode } = useThemeContext();
+  // Choose colors based on darkMode
   const primaryText = darkMode ? Grays.White : Blue.Blue7;
+  const primaryBackground = darkMode ? Grays.Gray4 : Blue.Blue0;
+  const secondaryBackground = darkMode ? Grays.Gray5 : Blue.Blue1;
 
   const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
@@ -79,7 +81,7 @@ const Summarize: React.FC = () => {
     color: primaryText,
     width: '200px',
     height: '28px',
-    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+    backgroundColor: primaryBackground,
     '& .MuiOutlinedInput-notchedOutline': {
       border: 'none', // Removes the outline
     },
@@ -88,11 +90,11 @@ const Summarize: React.FC = () => {
   const MenuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
+        backgroundColor: primaryBackground,
         '& .MuiMenuItem-root': {
-          color: darkMode ? Grays.White : Blue.Blue7,
+          color: primaryText,
           '&:hover': {
-            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
+            backgroundColor: secondaryBackground,
           },
         },
       },
@@ -284,7 +286,7 @@ const Summarize: React.FC = () => {
                 sx={{
                   p: 2,
                   borderRadius: '15px',
-                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                  backgroundColor: primaryBackground,
                 }}
               >
                 <ul
@@ -298,7 +300,7 @@ const Summarize: React.FC = () => {
                       key={index}
                       style={{
                         marginBottom: '4px',
-                        color: darkMode ? Grays.White : Blue.Blue7,
+                        color: primaryText,
                       }}
                     >
                       {point}
@@ -349,7 +351,7 @@ const Summarize: React.FC = () => {
         <Box
           sx={{
             position: 'relative',
-            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            backgroundColor: primaryBackground,
             px: 1,
             pt: 1,
             pb: 0.5,
@@ -369,13 +371,13 @@ const Summarize: React.FC = () => {
             placeholder={'Enter content here'}
             id='prompt'
             sx={{
-              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              backgroundColor: primaryBackground,
               width: '100%',
               '& .MuiInputBase-root': {
                 borderRadius: '15px',
               },
               '& .MuiInputBase-input': {
-                color: darkMode ? Grays.White : Blue.Blue7,
+                color: primaryText,
               },
               // Removes the border
               '& .MuiOutlinedInput-notchedOutline': {
@@ -393,14 +395,6 @@ const Summarize: React.FC = () => {
               marginTop: 0.5,
             }}
           >
-            {/* TODO */}
-            {/* Download Document */}
-            {/* <Tooltip title='Download as Word Document'>
-              <IconButton>
-                <DownloadForOffline />
-              </IconButton>
-            </Tooltip> */}
-
             {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
@@ -442,15 +436,25 @@ const Summarize: React.FC = () => {
           },
         }}
       >
-        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+        {/* Title */}
+        <DialogTitle
+          sx={{
+            color: primaryText,
+          }}
+        >
           Summarizer Settings
         </DialogTitle>
+
         <DialogContent>
+          {/* Stack Dropdown */}
           <Stack spacing={2} sx={{ alignItems: 'center' }}>
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Type:
               </Typography>
@@ -465,7 +469,7 @@ const Summarize: React.FC = () => {
                   sx={{
                     ...SummarizerDropdownStyle,
                     '& .MuiFormControlLabel-label': {
-                      color: darkMode ? Grays.White : Blue.Blue7,
+                      color: primaryText,
                     },
                   }}
                   MenuProps={MenuProps}
@@ -479,10 +483,14 @@ const Summarize: React.FC = () => {
               </FormControl>
             </Stack>
 
+            {/* Format Dropdown */}
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Format:
               </Typography>
@@ -506,10 +514,14 @@ const Summarize: React.FC = () => {
               </FormControl>
             </Stack>
 
+            {/* Length Dropdown */}
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Length:
               </Typography>
@@ -534,6 +546,8 @@ const Summarize: React.FC = () => {
             </Stack>
           </Stack>
         </DialogContent>
+
+        {/* Save and Close Buttons */}
         <DialogActions sx={{ display: 'flex', m: 'auto' }}>
           <Button
             variant='contained'

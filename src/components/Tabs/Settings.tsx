@@ -72,7 +72,7 @@ const Settings: React.FC = () => {
       } catch (error) {
         console.log('Error Loading User Settings: ', error);
       } finally {
-        setLoading(false); // Set loading to false after fetching is done
+        setLoading(false);
       }
     };
 
@@ -126,8 +126,8 @@ const Settings: React.FC = () => {
         >
           {Object.entries(supportedLanguages).map(([code, name]) => (
             <MenuItem key={code} value={code}>
-              {name}
               {/* Display the language name, value is the language code */}
+              {name}
             </MenuItem>
           ))}
         </Select>
