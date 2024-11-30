@@ -205,11 +205,29 @@ const Summarize: React.FC = () => {
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       } finally {
-        await chrome.storage.local.remove([
-          'openTab',
-          'selectedText',
-          'openUrl',
-        ]);
+        // Get selected text and page URL from local storage
+        const result = await new Promise<any>((resolve, reject) => {
+          chrome.storage.local.get(
+            ['selectedText', 'pageUrl', 'openTab'],
+            (result) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              }
+              resolve(result);
+            }
+          );
+        });
+
+        const { openTab } = result;
+
+        // Remove Local Value
+        if (openTab && openTab === 'summarizer') {
+          await chrome.storage.local.remove([
+            'openTab',
+            'selectedText',
+            'openUrl',
+          ]);
+        }
 
         console.log('after remove opentab');
         setLoading(false);

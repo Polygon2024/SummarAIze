@@ -17,8 +17,20 @@ import {
   Alert,
   Stack,
   Skeleton,
+  SelectChangeEvent,
+  InputAdornment,
+  InputLabel,
+  Switch,
 } from '@mui/material';
-import { Close, ContentCopy, Send, Tune } from '@mui/icons-material';
+import {
+  Check,
+  Close,
+  ContentCopy,
+  Edit,
+  Keyboard,
+  Send,
+  Tune,
+} from '@mui/icons-material';
 import { writeText } from '../../services/write';
 import { Format, Length, Tone } from '../../interface/WriteEntry.type';
 import { Blue, Grays } from '../../theme/color';
@@ -42,8 +54,9 @@ enum AIWriterLength {
 }
 
 const WriterRewriter: React.FC = () => {
-  const defaultContexts = [
+  const [defaultContexts, setDefaultContexts] = useState<string[]>([
     'Draft a reply to the message',
+    'Rewrite this paragraph in simpler words',
     'I am a student of...',
     'Explain the main concept of...',
     'Write a professional email regarding...',
@@ -52,10 +65,17 @@ const WriterRewriter: React.FC = () => {
     'Generate a concise summary of the provided text.',
     'Provide constructive feedback on the document.',
     'Suggest improvements to make this more engaging.',
-  ];
+  ]);
+
+  const [context, setContext] = useState<string>(
+    'Write a paragraph for the prompt'
+  );
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [customContext, setCustomContext] = useState<string>('');
+  const [contextEnabled, setContextEnabled] = useState<boolean>(false);
 
   const [prompt, setPrompt] = useState('');
-  const [context, setContext] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -79,7 +99,6 @@ const WriterRewriter: React.FC = () => {
   const [writerLength, setWriterLength] = useState<AIWriterLength>(
     AIWriterLength['medium']
   );
-  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const WriterDropdownStyle = {
     width: '160px',
@@ -93,11 +112,11 @@ const WriterRewriter: React.FC = () => {
   const MenuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+        backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
         '& .MuiMenuItem-root': {
-          color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+          color: darkMode ? Grays.White : Blue.Blue7,
           '&:hover': {
-            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
           },
         },
       },
@@ -126,13 +145,16 @@ const WriterRewriter: React.FC = () => {
           if (selectedText) {
             // Defining the Context Basing on the Context Menu Action
             setPrompt(selectedText);
-            const initContext =
-              openTab === 'replyMessage'
-                ? 'Draft reply message'
-                : openTab === 'rewriteText'
-                ? ''
-                : '';
+            let initContext;
+            switch (openTab) {
+              case 'replyMessage':
+                initContext = 'Draft a reply to the message';
+                break;
+              default:
+                initContext = 'Rewrite this paragraph in simpler words';
+            }
             setContext(initContext);
+            console.log('init cont', initContext);
 
             // Exit Early if context doesn't exist
             if (!initContext) {
@@ -148,13 +170,6 @@ const WriterRewriter: React.FC = () => {
             const rewriteOutput = await writeText(selectedText, initContext);
             setOutput(rewriteOutput);
           }
-
-          // Remove Local Storage of Data
-          await chrome.storage.local.remove([
-            'openTab',
-            'selectedText',
-            'openUrl',
-          ]);
         }
       } catch (error) {
         console.error('Error retrieving data or summarizing:', error);
@@ -162,6 +177,22 @@ const WriterRewriter: React.FC = () => {
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       } finally {
+        // Get selected text from local storage
+        const result = await new Promise<any>((resolve, reject) => {
+          chrome.storage.local.get(['selectedText', 'openTab'], (result) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            }
+            resolve(result);
+          });
+        });
+
+        const { openTab } = result;
+
+        // Remove Local Value
+        if (openTab && ['replyMessage', 'rewriteText'].includes(openTab)) {
+          await chrome.storage.local.remove(['openTab', 'selectedText']);
+        }
         setLoading(false);
       }
     };
@@ -172,6 +203,12 @@ const WriterRewriter: React.FC = () => {
   // Rewriting Content Functions
   const handleRewrite = async () => {
     setLoading(true);
+    console.log('Handle Rewrite');
+    console.log('Prompt', prompt);
+    console.log('context', context);
+    console.log('format', format);
+    console.log('tone', tone);
+    console.log('length', length);
     try {
       const rewriteOutput = await writeText(
         prompt,
@@ -208,11 +245,43 @@ const WriterRewriter: React.FC = () => {
       });
   };
 
-  const handleContextChange = (
-    event: React.ChangeEvent<{ value: unknown }>
-  ) => {
-    setContext(event.target.value as string);
+  // Handle context change
+  const handleContextChange = (event: SelectChangeEvent<string>) => {
+    const selectedValue = event.target.value;
+    setContext(selectedValue);
+  };
+
+  // Editting Context Values
+  const handleEdit = (index: number) => {
+    setEditIndex(index);
+    setCustomContext(defaultContexts[index]);
+    setIsEditing(true);
+  };
+
+  // Saving New Editted Context Values
+  const handleSave = () => {
+    if (editIndex !== null) {
+      const updatedContexts = [...defaultContexts];
+      updatedContexts[editIndex] = customContext;
+      setDefaultContexts(updatedContexts);
+      setContext(customContext);
+    }
     setIsEditing(false);
+    setEditIndex(null);
+  };
+
+  // Cancel Editting
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditIndex(null);
+  };
+
+  // Context Toggler
+  const handleToggle = () => {
+    // if (contextEnabled) {
+    //   setContext('Rewrite this paragraph in simpler words');
+    // }
+    setContextEnabled(!contextEnabled);
   };
 
   // Close Snackbar
@@ -306,21 +375,6 @@ const WriterRewriter: React.FC = () => {
         )}
       </Stack>
 
-      {/* Context Field */}
-      {/* <TextField
-        label='Context'
-        variant='outlined'
-        multiline
-        rows={4}
-        value={context}
-        onChange={(e) => setContext(e.target.value)}
-        sx={{
-          width: '80%',
-          marginBottom: 2,
-          backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-        }}
-      /> */}
-
       {/* Bottom section */}
       <Stack
         spacing={0.5}
@@ -330,6 +384,75 @@ const WriterRewriter: React.FC = () => {
           flexDirection: 'column',
         }}
       >
+        {contextEnabled && (
+          <>
+            {isEditing ? (
+              // Editable Content
+              <TextField
+                fullWidth
+                variant='outlined'
+                value={customContext}
+                onChange={(e) => setCustomContext(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    // Save and Cancel Buttons
+                    <InputAdornment position='end'>
+                      <IconButton onClick={handleSave}>
+                        <Check />
+                      </IconButton>
+                      <IconButton onClick={handleCancel}>
+                        <Close />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+                autoFocus
+                sx={{
+                  width: '100%',
+                  justifySelf: 'flex-start',
+                }}
+              />
+            ) : (
+              <FormControl fullWidth>
+                {/* Label for the Select */}
+                <InputLabel
+                  id='context-label'
+                  sx={{
+                    '&.Mui-focused': {
+                      transform: 'translate(4.5px, -8px) scale(0.75)',
+                    },
+                  }}
+                >
+                  Context
+                </InputLabel>
+
+                {/* Dropdown Options */}
+                <Select
+                  labelId='context-label'
+                  label='Context'
+                  value={context}
+                  onChange={handleContextChange}
+                  renderValue={(selected) => selected}
+                  sx={{ width: 'fit-content' }}
+                >
+                  {defaultContexts.map((option, index) => (
+                    <MenuItem
+                      key={index}
+                      value={option}
+                      sx={{ display: 'flex', justifyContent: 'space-between' }}
+                    >
+                      <span>{option}</span>
+                      <IconButton onClick={() => handleEdit(index)}>
+                        <Edit fontSize='small' />
+                      </IconButton>
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </>
+        )}
+
         {/* Outer Box with background and padding */}
         <Box
           sx={{
@@ -362,6 +485,10 @@ const WriterRewriter: React.FC = () => {
               '& .MuiInputBase-input': {
                 color: darkMode ? Grays.White : Blue.Blue7,
               },
+              // Removes the border
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none',
+              },
             }}
           />
 
@@ -369,53 +496,37 @@ const WriterRewriter: React.FC = () => {
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'flex-end',
+              justifyContent: 'space-between',
               alignItems: 'center',
               marginTop: 0.5,
+              width: '100%',
             }}
           >
-            {/* Context Dropdown */}
-            {isEditing ? (
-              // Editable text field
-              <TextField
-                fullWidth
-                value={context}
-                onChange={(e) => setContext(e.target.value)}
-                onBlur={() => setIsEditing(false)}
-                autoFocus
-              />
-            ) : (
-              // Dropdown with default contexts
-              <Select
-                fullWidth
-                value={context}
-                onChange={() => handleContextChange}
-                onClick={() => setIsEditing(true)}
-                displayEmpty
-              >
-                {defaultContexts.map((option, index) => (
-                  <MenuItem key={index} value={option}>
-                    {option}
-                  </MenuItem>
-                ))}
-                <MenuItem value={context}>Custom: {context}</MenuItem>
-              </Select>
-            )}
-            {/* </Box> */}
-
-            {/* Settings Icon */}
-            <Tooltip title='Writer Settings'>
-              <IconButton onClick={() => setShowSumSettings(true)}>
-                <Tune />
-              </IconButton>
+            {/* Context Switch */}
+            <Tooltip title='Toggle Context Option'>
+              <Box sx={{ display: 'flex' }}>
+                <Keyboard sx={{ alignSelf: 'center' }} />
+                <Switch
+                  checked={contextEnabled}
+                  onChange={handleToggle}
+                  inputProps={{ 'aria-label': 'context toggle' }}
+                />
+              </Box>
             </Tooltip>
 
-            {/* Send Icon */}
-            <Tooltip title='Send'>
-              <IconButton disabled={loading} onClick={() => handleRewrite()}>
-                <Send />
-              </IconButton>
-            </Tooltip>
+            {/* Settings and Send Buttons */}
+            <Box sx={{ display: 'flex' }}>
+              <Tooltip title='Writer Settings'>
+                <IconButton onClick={() => setShowSumSettings(true)}>
+                  <Tune />
+                </IconButton>
+              </Tooltip>
+              <Tooltip title='Send'>
+                <IconButton disabled={loading} onClick={() => handleRewrite()}>
+                  <Send />
+                </IconButton>
+              </Tooltip>
+            </Box>
           </Box>
         </Box>
       </Stack>
@@ -430,7 +541,11 @@ const WriterRewriter: React.FC = () => {
           },
         }}
       >
-        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+        <DialogTitle
+          sx={{
+            color: darkMode ? Grays.White : Blue.Blue7,
+          }}
+        >
           Writer Settings
         </DialogTitle>
         <DialogContent>
@@ -496,7 +611,12 @@ const WriterRewriter: React.FC = () => {
             </FormControl>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ display: 'flex', m: 'auto' }}>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            m: 'auto',
+          }}
+        >
           <Button
             variant='contained'
             onClick={() => setShowSumSettings(false)}

@@ -4,10 +4,6 @@ const TextFieldTheme = {
       root: {
         borderRadius: '15px',
         width: '100%',
-        // Removes the border
-        '& .MuiOutlinedInput-notchedOutline': {
-          border: 'none',
-        },
         '& .MuiInputBase-root': {
           // Target the multiline input specifically
           '&.MuiInputBase-multiline': {
