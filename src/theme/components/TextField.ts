@@ -2,10 +2,9 @@ const TextFieldTheme = {
   MuiTextField: {
     styleOverrides: {
       root: {
-        // borderRadius: '15px',
+        borderRadius: '15px',
         width: '100%',
         '& .MuiInputBase-root': {
-          // borderRadius: '1s5px',
           // Target the multiline input specifically
           '&.MuiInputBase-multiline': {
             padding: '0px !important',

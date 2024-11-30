@@ -20,9 +20,10 @@ import {
   DriveFileRenameOutline,
   HelpOutline,
 } from '@mui/icons-material';
-import { Blue } from '../theme/color';
-import { TabBaseStyle } from '../theme/components/Tabs';
+import { Blue, Grays } from '../theme/color';
 import SettingsDialog from './SettingsDialog';
+import DarkModeSwitch from './UI/DarkModeSwitch';
+import { useThemeContext } from '../context/ThemeContext';
 
 interface TabsSectionProps {
   value: number;
@@ -72,13 +73,14 @@ const TabsStyling = {
 
 const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const { darkMode } = useThemeContext();
 
   return (
     <Box
       sx={{
         position: 'fixed',
         width: 'fit-content',
-        backgroundColor: Blue.Blue7,
+        backgroundColor: darkMode ? Grays.Gray6 : Blue.Blue5,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -105,12 +107,24 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
               key={tab.key}
               sx={{
                 ...TabsStyling,
-                color: value === tab.key ? Blue.Blue1 : Blue.Blue3,
-                backgroundColor:
-                  value === tab.key ? `${Blue.Blue4} !important` : 'none',
+                backgroundColor: (() => {
+                  if (value === tab.key) {
+                    return darkMode
+                      ? `${Grays.Gray4} !important`
+                      : `${Blue.Blue3} !important`;
+                  }
+                  return 'none';
+                })(),
                 '&:hover': {
-                  color: value === tab.key ? Blue.Blue1 : Blue.Blue6,
-                  backgroundColor: Blue.Blue5,
+                  color: (() => {
+                    if (value === tab.key) {
+                      return darkMode
+                        ? `${Grays.White} !important`
+                        : `${Blue.Blue1} !important`;
+                    }
+                    return darkMode ? Grays.Gray3 : Blue.Blue2;
+                  })(),
+                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
                 },
               }}
             >
@@ -120,45 +134,70 @@ const TabsSection: React.FC<TabsSectionProps> = ({ value, onTabChange }) => {
         ))}
       </Tabs>
 
-      <Tabs
-        orientation='vertical'
-        value={value}
-        sx={{
-          '& .MuiTabs-indicator': {
-            display: 'none',
+      <Box>
+        <DarkModeSwitch />
+        <Tabs
+          orientation='vertical'
+          value={value}
+          sx={{
+            '& .MuiTabs-indicator': {
+              display: 'none',
+            },
+          }}
+        >
+          {/* Render Settings tabs */}
+          {settingsTab.map((tab) => (
+            <Tooltip title={tab.label} placement='right' arrow>
+              <Button
+                onClick={
+                  tab.key === 5
+                    ? () => setOpenDialog(true)
+                    : () => onTabChange(tab.key)
+                }
+                key={tab.key}
+                sx={{
+                  ...TabsStyling,
+                  backgroundColor: (() => {
+                    if (value === tab.key) {
+                      return darkMode
+                        ? `${Grays.Gray4} !important`
+                        : `${Blue.Blue3} !important`;
+                    }
+                    return 'none';
+                  })(),
+                  '&:hover': {
+                    color: (() => {
+                      if (value === tab.key) {
+                        return darkMode
+                          ? `${Grays.White} !important`
+                          : `${Blue.Blue1} !important`;
+                      }
+                      return darkMode ? Grays.Gray3 : Blue.Blue2;
+                    })(),
+                    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
+                  },
+                }}
+              >
+                {tab.icon}
+              </Button>
+            </Tooltip>
+          ))}
+        </Tabs>
+      </Box>
+
+      {/* Dialog for Settings */}
+      <Dialog
+        open={openDialog}
+        onClose={() => setOpenDialog(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: darkMode ? Grays.Gray6 : Grays.White,
           },
         }}
       >
-        {/* Render Settings tabs */}
-        {settingsTab.map((tab) => (
-          <Tooltip title={tab.label} placement='right' arrow>
-            <Button
-              onClick={
-                tab.key === 5
-                  ? () => setOpenDialog(true)
-                  : () => onTabChange(tab.key)
-              }
-              key={tab.key}
-              sx={{
-                ...TabsStyling,
-                color: value === tab.key ? Blue.Blue1 : Blue.Blue3,
-                backgroundColor:
-                  value === tab.key ? `${Blue.Blue4} !important` : 'none',
-                '&:hover': {
-                  color: value === tab.key ? Blue.Blue1 : Blue.Blue6,
-                  backgroundColor: Blue.Blue5,
-                },
-              }}
-            >
-              {tab.icon}
-            </Button>
-          </Tooltip>
-        ))}
-      </Tabs>
-
-      {/* Dialog for Settings */}
-      <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
-        <DialogTitle>Settings</DialogTitle>
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Settings
+        </DialogTitle>
         <DialogContent>
           <SettingsDialog />
         </DialogContent>

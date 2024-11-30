@@ -5,7 +5,7 @@ import { Blue } from '../color';
 export const ButtonBaseStyle: CSSObject = {
   minWidth: 'fit-content',
   width: '100%',
-  height: 'fit-content',
+  height: '40px',
   padding: '6px 18px',
   margin: 'none',
   border: 'none',

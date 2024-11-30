@@ -16,8 +16,12 @@ import {
 } from '@mui/material';
 import supportedLanguages from '../data/supportedLanguages';
 import { getUserSettings, updateUserSettings } from '../services/setting';
+import { useThemeContext } from '../context/ThemeContext';
+import { Blue, Grays } from '../theme/color';
 
 const SettingsDialog: React.FC = () => {
+  const { darkMode } = useThemeContext();
+
   // Snackbar state for success or error messages
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
@@ -111,6 +115,11 @@ const SettingsDialog: React.FC = () => {
             />
           }
           label='Enable Translation'
+          sx={{
+            '& .MuiFormControlLabel-label': {
+              color: darkMode ? Grays.White : Blue.Blue7,
+            },
+          }}
         />
       </FormGroup>
 
@@ -121,6 +130,20 @@ const SettingsDialog: React.FC = () => {
           onChange={handleLanguageChange}
           sx={{
             width: '200px',
+            color: darkMode ? Grays.White : Blue.Blue7,
+          }}
+          MenuProps={{
+            PaperProps: {
+              sx: {
+                backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
+                '& .MuiMenuItem-root': {
+                  color: darkMode ? Grays.White : Blue.Blue7,
+                  '&:hover': {
+                    backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
+                  },
+                },
+              },
+            },
           }}
         >
           {Object.entries(supportedLanguages).map(([code, name]) => (
@@ -130,7 +153,9 @@ const SettingsDialog: React.FC = () => {
             </MenuItem>
           ))}
         </Select>
-        <FormHelperText>Preferred Language</FormHelperText>
+        <FormHelperText sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Preferred Language
+        </FormHelperText>
       </FormControl>
 
       {/* Snackbar for Success/Error Messages */}

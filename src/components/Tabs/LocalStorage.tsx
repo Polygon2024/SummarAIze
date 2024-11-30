@@ -24,11 +24,14 @@ import {
   OpenInNew,
   Sync,
 } from '@mui/icons-material';
-import { Blue } from '../../theme/color';
+import { Blue, Grays } from '../../theme/color';
 import AlertMessage from '../UI/AlertMessage';
 import DataEntry from '../../interface/DataEntry.type';
+import { useThemeContext } from '../../context/ThemeContext';
 
 const LocalStorage: React.FC = () => {
+  const { darkMode } = useThemeContext();
+
   // TODO: Testing
   // const [allEntries, setAllEntries] = useState<DataEntry[]>([
   //   {
@@ -41,6 +44,17 @@ const LocalStorage: React.FC = () => {
   //     summary: '* First dot point * Second dot point * Third dot point',
   //     translatedText:
   //       'Chào mừng đến với nền tảng. Đây là bước đầu tiên của bạn để khám phá các tính năng AI.',
+  //     isSynced: false,
+  //   },
+  //   {
+  //     page: 'https://mui.com/material-ui/material-icons/?query=open',
+  //     text: 'Learn about integrating AI into your workflows seamlessly.',
+  //     timestamp: 1234,
+  //     languageDetected: 'en',
+  //     title: 'AI Integration',
+  //     summary: '* First dot point * Second dot point * Third dot point',
+  //     translatedText:
+  //       'Tìm hiểu cách tích hợp AI vào quy trình làm việc của bạn một cách liền mạch.',
   //     isSynced: false,
   //   },
   //   {
@@ -269,7 +283,7 @@ const LocalStorage: React.FC = () => {
       />
 
       {allEntries.length !== 0 ? (
-        <>
+        <Stack spacing={2}>
           {/* DataEntry List */}
 
           {allEntries.map((entry) => (
@@ -278,6 +292,10 @@ const LocalStorage: React.FC = () => {
               sx={{
                 border: 'none',
                 boxShadow: 'none',
+                backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                '&::before': {
+                  display: 'none',
+                },
               }}
             >
               {/* DataEntry Accordion Heading */}
@@ -295,6 +313,7 @@ const LocalStorage: React.FC = () => {
                       display: 'flex',
                       alignItems: 'center',
                       gap: 1,
+                      border: 'none',
                     }}
                   >
                     {/* Title */}
@@ -307,6 +326,16 @@ const LocalStorage: React.FC = () => {
                       }
                       disabled={editingTitle !== entry.timestamp}
                       onChange={(e) => setEditingTitleValue(e.target.value)}
+                      InputProps={{
+                        sx: {
+                          color: darkMode
+                            ? `${Grays.White} !important`
+                            : `${Blue.Blue7} !important`,
+                          '&.Mui-disabled': {
+                            color: darkMode ? Grays.White : Blue.Blue7, // Ensure disabled text has the same color
+                          },
+                        },
+                      }}
                     />
 
                     {/* Edit / Save / Cancel Buttons */}
@@ -390,7 +419,7 @@ const LocalStorage: React.FC = () => {
               </AccordionDetails>
             </Accordion>
           ))}
-        </>
+        </Stack>
       ) : (
         <Box
           sx={{
@@ -403,9 +432,9 @@ const LocalStorage: React.FC = () => {
             gap: '30px',
           }}
         >
-          <Typography>
+          <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
             There are no Data Entries Available at the moment. Please use the
-            Summarise Feature to add data to the storage.
+            Summarize Feature to add data to the storage.
           </Typography>
         </Box>
       )}
@@ -417,6 +446,7 @@ const LocalStorage: React.FC = () => {
 const TextDetails: React.FC<{
   DataEntry: DataEntry;
 }> = ({ DataEntry }) => {
+  const { darkMode } = useThemeContext();
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
     'success'
   );
@@ -486,27 +516,32 @@ const TextDetails: React.FC<{
         }}
       >
         {DataEntry.page !== '' && (
-          <Typography>
-            <Link
-              href={DataEntry.page}
-              target='_blank'
-              sx={{
-                color: Blue.Blue6,
-                textDecoration: 'none',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 0.5,
-              }}
-            >
-              <OpenInNew />
-              <strong>URL Link:</strong> {DataEntry.page}
-            </Link>
+          <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+            <Tooltip title={DataEntry.page}>
+              <Link
+                href={DataEntry.page}
+                target='_blank'
+                sx={{
+                  color: darkMode ? Blue.Blue4 : Blue.Blue6,
+                  textDecoration: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 0.5,
+                }}
+              >
+                <OpenInNew />
+                <strong>Click to Open Article Link</strong>
+              </Link>
+            </Tooltip>
           </Typography>
         )}
 
         <Stack spacing={1}>
           {/* List Display of Summaries */}
-          <Typography variant='h6'>
+          <Typography
+            sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}
+            variant='h6'
+          >
             <strong>Summaries:</strong>
           </Typography>
 
@@ -517,7 +552,13 @@ const TextDetails: React.FC<{
             }}
           >
             {bulletPoints.map((point, index) => (
-              <li key={index} style={{ marginBottom: '4px' }}>
+              <li
+                key={index}
+                style={{
+                  marginBottom: '4px',
+                  color: darkMode ? Grays.White : Blue.Blue7,
+                }}
+              >
                 {point}
               </li>
             ))}
@@ -528,16 +569,17 @@ const TextDetails: React.FC<{
         <Accordion
           sx={{
             boxShadow: 'none',
-            border: '1px solid',
+            border: 'none',
+            borderRadius: '5px',
             m: '0 !important',
-            borderColor: Blue.Blue5,
-            '&:before': {
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
+            '&::before': {
               display: 'none',
             },
           }}
         >
           <AccordionSummary expandIcon={<ArrowDropDown />}>
-            <Typography>
+            <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
               <strong> Orignal Text</strong>
             </Typography>
             <Tooltip title='Copy Content'>
@@ -552,7 +594,9 @@ const TextDetails: React.FC<{
             </Tooltip>
           </AccordionSummary>
           <AccordionDetails>
-            <Typography>{DataEntry.text}</Typography>
+            <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+              {DataEntry.text}
+            </Typography>
           </AccordionDetails>
         </Accordion>
 
@@ -560,17 +604,16 @@ const TextDetails: React.FC<{
         {DataEntry.translatedText !== '' && (
           <Accordion
             sx={{
+              borderRadius: '5px',
               boxShadow: 'none',
-              border: '1px solid',
-              borderColor: Blue.Blue5,
-              m: '0 !important',
-              '&:before': {
+              backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
+              '&::before': {
                 display: 'none',
               },
             }}
           >
             <AccordionSummary expandIcon={<ArrowDropDown />}>
-              <Typography>
+              <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
                 <strong>Translation of Orignal Text</strong>
               </Typography>
               <Tooltip title='Copy Content'>
@@ -587,7 +630,9 @@ const TextDetails: React.FC<{
               </Tooltip>
             </AccordionSummary>
             <AccordionDetails>
-              <Typography>{DataEntry.translatedText}</Typography>
+              <Typography sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+                {DataEntry.translatedText}
+              </Typography>
             </AccordionDetails>
           </Accordion>
         )}

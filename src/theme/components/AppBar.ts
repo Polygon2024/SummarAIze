@@ -7,7 +7,7 @@ export const AppBarBaseStyle: CSSObject = {
     width: '100%',
     boxShadow: 'none',
     flexGrow: 1,
-    backgroundColor: Blue.Blue7,
+    backgroundColor: Blue.Blue5,
   },
 };
 

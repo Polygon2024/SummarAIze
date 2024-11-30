@@ -16,19 +16,13 @@ import {
   DialogContent,
   DialogTitle,
   Button,
-  CircularProgress,
   Skeleton,
+  InputAdornment,
 } from '@mui/material';
-import {
-  Close,
-  ContentCopy,
-  DownloadForOffline,
-  Launch,
-  Send,
-  Sync,
-  Tune,
-} from '@mui/icons-material';
+import { Close, ContentCopy, Launch, Send, Tune } from '@mui/icons-material';
 import { handleSummarization } from '../../services/summarize';
+import { Blue, Grays } from '../../theme/color';
+import { useThemeContext } from '../../context/ThemeContext';
 
 enum AISummarizerType {
   'tl;dr' = 'tl;dr',
@@ -54,12 +48,11 @@ type LatestEntry = {
   summary: string;
 } | null;
 
-const testContent = `A complex issue Climate change impacts our society in many different ways. Drought can harm food production and human health. Flooding can lead to spread of disease, death, and damage ecosystems and infrastructure. Human health issues that result from drought, flooding, and other weather conditions increase the death rate, change food availability, and limit how much a worker can get done, and ultimately the productivity of our economy. Climate change affects everyone, but the impacts are uneven across the country and around the world. Even within one community, climate change can affect one neighborhood or person more than another. Long-standing differences in income and opportunity, or socioeconomic inequalities, can make some groups more vulnerable. Communities that have less access to resources to protect themselves or cope with impacts are often the same communities that are also more exposed to hazards.
-`;
-
 const Summarize: React.FC = () => {
+  const { darkMode } = useThemeContext();
   const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
+  const [bulletPoints, setBulletPoints] = useState<string[]>([]);
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
     AISummarizerType['key-points']
   );
@@ -71,7 +64,6 @@ const Summarize: React.FC = () => {
   );
 
   const [editableText, setEditableText] = useState<string>('');
-  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
 
   // State for alerts
   const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>(
@@ -79,10 +71,25 @@ const Summarize: React.FC = () => {
   );
   const [openSnackbar, setOpenSnackbar] = useState<boolean>(false);
   const [snackbarMessage, setSnackbarMessage] = useState<string>('');
+  const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
 
-  const SummariserDropdownStyle = {
+  const SummarizerDropdownStyle = {
     width: '140px',
     height: '28px',
+  };
+
+  const MenuProps = {
+    PaperProps: {
+      sx: {
+        backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+        '& .MuiMenuItem-root': {
+          color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+          '&:hover': {
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+          },
+        },
+      },
+    },
   };
 
   // Handler for editable text change
@@ -113,7 +120,7 @@ const Summarize: React.FC = () => {
   };
 
   // Summarising Text Input
-  const handleSummarise = async () => {
+  const handleSummarize = async () => {
     setLoading(true);
     const pageUrl = '';
     try {
@@ -124,6 +131,16 @@ const Summarize: React.FC = () => {
         summary: summary || '',
       };
       setLatestEntry(parsedResult);
+      console.log('pparsedResult', parsedResult);
+
+      // Splitting Dot Points of Summaries
+      const bulletPoints = parsedResult
+        .summary!.split('*')
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+
+      console.log('BP', bulletPoints);
+      setBulletPoints(bulletPoints);
     } catch (error) {
       console.error('Error Summarising:', error);
       setSnackbarMessage('Error Summarising.');
@@ -135,6 +152,7 @@ const Summarize: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log('TEST UE');
     // Create the async function inside the useEffect
     const fetchData = async () => {
       setLoading(true);
@@ -155,7 +173,7 @@ const Summarize: React.FC = () => {
 
         const { selectedText, pageUrl, openTab } = result;
 
-        if (openTab && openTab === 'summaraizer') {
+        if (openTab && openTab === 'summarizer') {
           if (selectedText && pageUrl) {
             setEditableText(selectedText);
 
@@ -167,31 +185,19 @@ const Summarize: React.FC = () => {
               summary: summary || '',
             };
             setLatestEntry(entry);
-            console.log('Remove openTab');
-            await chrome.storage.local.remove([
-              'openTab',
-              'selectedText',
-              'openUrl',
-            ]);
 
-            console.log('after remove opentab');
+            // Splitting Dot Points of Summaries
+            const bulletPoints = entry
+              .summary!.split('*')
+              .map((item) => item.trim())
+              .filter((item) => item.length > 0);
+
+            console.log('BP', bulletPoints);
+            setBulletPoints(bulletPoints);
+            console.log('Remove openTab');
           }
         } else {
-          // If no selectedText or pageUrl, get the latest entry from local storage
-          const items = await chrome.storage.local.get(null);
-          const entries = Object.values(items);
-
-          if (entries.length === 0) {
-            console.log('No entries found in local storage.');
-            return;
-          }
-
-          // Sort entries by timestamp in descending order to get the latest one
-          entries.sort((a, b) => b.timestamp - a.timestamp);
-          const latest = entries[0];
-
-          setLatestEntry(latest);
-          setEditableText(latest.text);
+          return;
         }
       } catch (error) {
         console.error('Error retrieving data or summarizing:', error);
@@ -199,6 +205,31 @@ const Summarize: React.FC = () => {
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       } finally {
+        // Get selected text and page URL from local storage
+        const result = await new Promise<any>((resolve, reject) => {
+          chrome.storage.local.get(
+            ['selectedText', 'pageUrl', 'openTab'],
+            (result) => {
+              if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+              }
+              resolve(result);
+            }
+          );
+        });
+
+        const { openTab } = result;
+
+        // Remove Local Value
+        if (openTab && openTab === 'summarizer') {
+          await chrome.storage.local.remove([
+            'openTab',
+            'selectedText',
+            'openUrl',
+          ]);
+        }
+
+        console.log('after remove opentab');
         setLoading(false);
       }
     };
@@ -213,22 +244,24 @@ const Summarize: React.FC = () => {
         flexDirection: 'column',
         justifyContent: 'space-between',
         height: '100%',
+        width: '100%',
       }}
     >
       {/* Top section */}
       <Stack spacing={1}>
         {/* Title */}
         <Typography
-          variant='h6'
+          variant='h4'
           sx={{
             width: '100%',
             textAlign: 'center',
-            textDecoration: 'underline',
+            color: darkMode ? Grays.White : Blue.Blue7,
           }}
         >
           Summarizer
         </Typography>
-        {/* Summarised Text Field */}
+
+        {/* Summarized Text Field */}
         {loading ? (
           // Loading
           <Box sx={{ width: '100%' }}>
@@ -237,96 +270,134 @@ const Summarize: React.FC = () => {
             <Skeleton />
           </Box>
         ) : (
-          // Summarised Content
-          <TextField
-            fullWidth
-            multiline
-            maxRows={8}
-            variant='outlined'
-            value={latestEntry ? latestEntry.summary : ''}
-            id='summarized'
-            sx={{
-              '& textarea': {
-                // Hides the typing indicator (caret) for multiline TextField
-                caretColor: 'transparent',
-              },
-            }}
-          />
+          <>
+            {latestEntry && bulletPoints ? (
+              // Summarized Content as a List
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: '15px',
+                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                }}
+              >
+                <ul
+                  style={{
+                    paddingLeft: '20px',
+                    listStyleType: 'disc',
+                  }}
+                >
+                  {bulletPoints.map((point, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        marginBottom: '4px',
+                        color: darkMode ? Grays.White : Blue.Blue7,
+                      }}
+                    >
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            ) : (
+              <Alert severity='info'>
+                Get started by inserting your text content in the field below to
+                start summarizing
+              </Alert>
+            )}
+          </>
         )}
 
         {/* Link to copy summarized text */}
-        <Box
-          sx={{
-            textAlign: 'right',
-            mt: '0 !important',
-          }}
-        >
-          <Tooltip title='Copy Content'>
-            <IconButton
-              size='small'
-              onClick={() => copyToClipboard(latestEntry!.summary)}
-              disabled={!latestEntry}
-            >
-              <ContentCopy fontSize='inherit' />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {latestEntry && bulletPoints && (
+          <Box
+            sx={{
+              textAlign: 'right',
+              mt: '0 !important',
+            }}
+          >
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={() => copyToClipboard(latestEntry!.summary)}
+                disabled={!latestEntry}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Stack>
 
       {/* Bottom section */}
       <Stack
         spacing={0.5}
         sx={{
-          display: 'absolute',
-          bottom: 0,
+          position: 'relative',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
-        {/* Input Text Field */}
-        <TextField
-          fullWidth
-          multiline
-          maxRows={3}
-          variant='outlined'
-          onChange={handleTextChange}
-          value={editableText !== null ? editableText : ''}
-          placeholder={'Enter a paragraph here'}
-          id='prompt'
-          sx={{
-            borderRadius: '15px',
-            width: '100%',
-            '& .MuiInputBase-root': {
-              borderRadius: '15px',
-            },
-          }}
-        />
-
-        {/* Icon Buttons */}
+        {/* Prompt Field and Additional Buttons */}
         <Box
           sx={{
+            position: 'relative',
+            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            px: 1,
+            pt: 1,
+            pb: 0.5,
+            borderRadius: '15px',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
+            flexDirection: 'column',
           }}
         >
-          {/* Left-aligned icons */}
+          {/* Input Text Field */}
+          <TextField
+            fullWidth
+            multiline
+            maxRows={3}
+            variant='outlined'
+            onChange={handleTextChange}
+            value={editableText !== null ? editableText : ''}
+            placeholder={'Enter content here'}
+            id='prompt'
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              width: '100%',
+              '& .MuiInputBase-root': {
+                borderRadius: '15px',
+              },
+              '& .MuiInputBase-input': {
+                color: darkMode ? Grays.White : Blue.Blue7,
+              },
+              // Removes the border
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none',
+              },
+            }}
+          />
+
+          {/* Icon Buttons */}
           <Box
             sx={{
               display: 'flex',
-              gap: 0.5,
+              justifyContent: 'flex-end',
+              alignItems: 'center',
+              marginTop: 0.5,
             }}
           >
-            {/* TODO: Syncing Summary  */}
-            <Tooltip title='Sync summaries'>
-              <IconButton disabled={latestEntry === null}>
-                <Sync />
+            {/* TODO */}
+            {/* Download Document */}
+            {/* <Tooltip title='Download as Word Document'>
+              <IconButton>
+                <DownloadForOffline />
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* Redirect to Article Link */}
             <Tooltip title='Open Article Link'>
               <IconButton
-                disabled={latestEntry === null}
+                disabled={!latestEntry || !latestEntry.page}
                 onClick={() => {
                   if (latestEntry?.page) {
                     window.open(latestEntry.page, '_blank');
@@ -337,36 +408,16 @@ const Summarize: React.FC = () => {
               </IconButton>
             </Tooltip>
 
-            {/* Toggle Summarizer Settings */}
+            {/* Settings Icon */}
             <Tooltip title='Summarizer Settings'>
-              <Tooltip title='Summarizer Settings'>
-                <IconButton
-                  onClick={() => setShowSumSettings(true)}
-                  color='primary'
-                >
-                  <Tune />
-                </IconButton>
-              </Tooltip>
-            </Tooltip>
-          </Box>
-
-          {/* Right-aligned Summarise icon */}
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 0.5,
-            }}
-          >
-            {/* Download Document */}
-            {/* <Tooltip title='Download as Word Document'>
-              <IconButton>
-                <DownloadForOffline />
+              <IconButton onClick={() => setShowSumSettings(true)}>
+                <Tune />
               </IconButton>
-            </Tooltip> */}
+            </Tooltip>
 
-            {/* AI Summarising */}
-            <Tooltip title='Summarise'>
-              <IconButton onClick={() => handleSummarise()}>
+            {/* Send Icon */}
+            <Tooltip title='Send'>
+              <IconButton disabled={loading} onClick={handleSummarize}>
                 <Send />
               </IconButton>
             </Tooltip>
@@ -375,8 +426,18 @@ const Summarize: React.FC = () => {
       </Stack>
 
       {/* Dialog for Summarizer Settings */}
-      <Dialog open={showSumSettings} onClose={() => setShowSumSettings(false)}>
-        <DialogTitle>Summarizer Settings</DialogTitle>
+      <Dialog
+        open={showSumSettings}
+        onClose={() => setShowSumSettings(false)}
+        PaperProps={{
+          sx: {
+            backgroundColor: darkMode ? Grays.Gray6 : Grays.White,
+          },
+        }}
+      >
+        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+          Summarizer Settings
+        </DialogTitle>
         <DialogContent>
           <Stack
             spacing={2}
@@ -392,7 +453,13 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerType(e.target.value as AISummarizerType)
                 }
-                sx={SummariserDropdownStyle}
+                sx={{
+                  ...SummarizerDropdownStyle,
+                  '& .MuiFormControlLabel-label': {
+                    color: darkMode ? Grays.White : Blue.Blue7,
+                  },
+                }}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerType).map((type) => (
                   <MenuItem key={type} value={type}>
@@ -410,7 +477,8 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerFormat(e.target.value as AISummarizerFormat)
                 }
-                sx={SummariserDropdownStyle}
+                sx={SummarizerDropdownStyle}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerFormat).map((format) => (
                   <MenuItem key={format} value={format}>
@@ -428,7 +496,8 @@ const Summarize: React.FC = () => {
                 onChange={(e) =>
                   setSummarizerLength(e.target.value as AISummarizerLength)
                 }
-                sx={SummariserDropdownStyle}
+                sx={SummarizerDropdownStyle}
+                MenuProps={MenuProps}
               >
                 {Object.values(AISummarizerLength).map((length) => (
                   <MenuItem key={length} value={length}>
