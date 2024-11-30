@@ -370,6 +370,10 @@ const Summarize: React.FC = () => {
               '& .MuiInputBase-input': {
                 color: darkMode ? Grays.White : Blue.Blue7,
               },
+              // Removes the border
+              '& .MuiOutlinedInput-notchedOutline': {
+                border: 'none',
+              },
             }}
           />
 

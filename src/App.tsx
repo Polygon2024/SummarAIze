@@ -46,12 +46,12 @@ const AppContent: React.FC = () => {
       <Box
         sx={{
           display: 'flex',
-          minWidth: '600px',
-          minHeight: '500px',
+          minWidth: '800px',
+          minHeight: '580px',
           width: '100vw',
           height: '100vh',
           overflowY: 'auto',
-          overflowX: 'hidden',
+          overflowX: 'hidden !important',
           backgroundColor: darkMode ? Grays.Gray5 : Grays.White,
         }}
       >
@@ -64,7 +64,7 @@ const AppContent: React.FC = () => {
         <Box
           sx={{
             flexGrow: 1,
-            padding: 2,
+            p: 2,
             maxWidth: '800px',
             display: 'flex',
             marginX: 'auto',

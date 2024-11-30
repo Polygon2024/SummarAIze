@@ -135,11 +135,11 @@ const SettingsDialog: React.FC = () => {
           MenuProps={{
             PaperProps: {
               sx: {
-                backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+                backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
                 '& .MuiMenuItem-root': {
-                  color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+                  color: darkMode ? Grays.White : Blue.Blue7,
                   '&:hover': {
-                    backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+                    backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
                   },
                 },
               },

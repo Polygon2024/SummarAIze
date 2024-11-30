@@ -55,8 +55,8 @@ enum AIWriterLength {
 
 const WriterRewriter: React.FC = () => {
   const [defaultContexts, setDefaultContexts] = useState<string[]>([
-    'Draft a reply to the message',
     'Rewrite this paragraph in simpler words',
+    'Draft a reply to the message',
     'I am a student of...',
     'Explain the main concept of...',
     'Write a professional email regarding...',
@@ -67,13 +67,11 @@ const WriterRewriter: React.FC = () => {
     'Suggest improvements to make this more engaging.',
   ]);
 
-  const [context, setContext] = useState<string>(
-    'Write a paragraph for the prompt'
-  );
+  const [context, setContext] = useState<string>(defaultContexts[0]);
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   const [customContext, setCustomContext] = useState<string>('');
-  const [contextEnabled, setContextEnabled] = useState<boolean>(false);
+  const [contextEnabled, setContextEnabled] = useState<boolean>(true);
 
   const [prompt, setPrompt] = useState('');
   const [output, setOutput] = useState('');
@@ -433,7 +431,25 @@ const WriterRewriter: React.FC = () => {
                   value={context}
                   onChange={handleContextChange}
                   renderValue={(selected) => selected}
-                  sx={{ width: 'fit-content' }}
+                  sx={{
+                    width: 'fit-content',
+                    color: darkMode ? Grays.White : Blue.Blue7,
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      sx: {
+                        backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
+                        '& .MuiMenuItem-root': {
+                          color: darkMode ? Grays.White : Blue.Blue7,
+                          '&:hover': {
+                            backgroundColor: darkMode
+                              ? Grays.Gray5
+                              : Blue.Blue1,
+                          },
+                        },
+                      },
+                    },
+                  }}
                 >
                   {defaultContexts.map((option, index) => (
                     <MenuItem
@@ -474,7 +490,7 @@ const WriterRewriter: React.FC = () => {
             variant='outlined'
             onChange={(e) => setPrompt(e.target.value)}
             value={prompt}
-            placeholder='Enter a content here'
+            placeholder='Enter content here'
             id='prompt'
             sx={{
               backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
@@ -496,14 +512,15 @@ const WriterRewriter: React.FC = () => {
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'space-between',
+              // justifyContent: 'space-between',
+              justifyContent: 'flex-end',
               alignItems: 'center',
               marginTop: 0.5,
               width: '100%',
             }}
           >
             {/* Context Switch */}
-            <Tooltip title='Toggle Context Option'>
+            {/* <Tooltip title='Toggle Context Option'>
               <Box sx={{ display: 'flex' }}>
                 <Keyboard sx={{ alignSelf: 'center' }} />
                 <Switch
@@ -512,7 +529,7 @@ const WriterRewriter: React.FC = () => {
                   inputProps={{ 'aria-label': 'context toggle' }}
                 />
               </Box>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* Settings and Send Buttons */}
             <Box sx={{ display: 'flex' }}>
