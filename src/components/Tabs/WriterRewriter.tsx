@@ -42,6 +42,18 @@ enum AIWriterLength {
 }
 
 const WriterRewriter: React.FC = () => {
+  const defaultContexts = [
+    'Draft a reply to the message',
+    'I am a student of...',
+    'Explain the main concept of...',
+    'Write a professional email regarding...',
+    'Avoid any toxic language and be as constructive as possible.',
+    'Rewrite this paragraph in a more formal tone.',
+    'Generate a concise summary of the provided text.',
+    'Provide constructive feedback on the document.',
+    'Suggest improvements to make this more engaging.',
+  ];
+
   const [prompt, setPrompt] = useState('');
   const [context, setContext] = useState('');
   const [output, setOutput] = useState('');
@@ -67,6 +79,7 @@ const WriterRewriter: React.FC = () => {
   const [writerLength, setWriterLength] = useState<AIWriterLength>(
     AIWriterLength['medium']
   );
+  const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const WriterDropdownStyle = {
     width: '160px',
@@ -195,6 +208,13 @@ const WriterRewriter: React.FC = () => {
       });
   };
 
+  const handleContextChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setContext(event.target.value as string);
+    setIsEditing(false);
+  };
+
   // Close Snackbar
   const handleCloseSnackbar = () => {
     setOpenSnackbar(false);
@@ -224,6 +244,7 @@ const WriterRewriter: React.FC = () => {
         >
           Writer/Rewriter
         </Typography>
+
         {/* Written Content Text Field */}
         {loading ? (
           // Loading
@@ -233,45 +254,56 @@ const WriterRewriter: React.FC = () => {
             <Skeleton />
           </Box>
         ) : (
-          // Rewritten Content
-          <TextField
-            fullWidth
-            multiline
-            maxRows={8}
-            variant='outlined'
-            value={output ? output : ''}
-            id='summarized'
-            sx={{
-              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-              '& .MuiInputBase-input': {
-                color: darkMode ? Grays.White : Blue.Blue7,
-                opacity: 1,
-              },
-              '& textarea': {
-                // Hides the typing indicator (caret) for multiline TextField
-                caretColor: 'transparent',
-              },
-            }}
-          />
+          <>
+            {output ? (
+              // Rewritten Content
+              <TextField
+                fullWidth
+                multiline
+                maxRows={8}
+                variant='outlined'
+                value={output ? output : ''}
+                id='summarized'
+                sx={{
+                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                  '& .MuiInputBase-input': {
+                    color: darkMode ? Grays.White : Blue.Blue7,
+                    opacity: 1,
+                  },
+                  '& textarea': {
+                    // Hides the typing indicator (caret) for multiline TextField
+                    caretColor: 'transparent',
+                  },
+                }}
+              />
+            ) : (
+              <Alert severity='info'>
+                Get started by inserting your text content in the field below to
+                start rewriting the content
+              </Alert>
+            )}
+          </>
         )}
 
         {/* Link to copy summarized text */}
-        <Box
-          sx={{
-            textAlign: 'right',
-            mt: '0 !important',
-          }}
-        >
-          <Tooltip title='Copy Content'>
-            <IconButton
-              size='small'
-              onClick={() => copyToClipboard(output)}
-              disabled={!output}
-            >
-              <ContentCopy fontSize='inherit' />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {output && (
+          <Box
+            sx={{
+              textAlign: 'right',
+              mt: '0 !important',
+            }}
+          >
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={() => copyToClipboard(output)}
+                disabled={!output}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Stack>
 
       {/* Context Field */}
@@ -342,6 +374,35 @@ const WriterRewriter: React.FC = () => {
               marginTop: 0.5,
             }}
           >
+            {/* Context Dropdown */}
+            {isEditing ? (
+              // Editable text field
+              <TextField
+                fullWidth
+                value={context}
+                onChange={(e) => setContext(e.target.value)}
+                onBlur={() => setIsEditing(false)}
+                autoFocus
+              />
+            ) : (
+              // Dropdown with default contexts
+              <Select
+                fullWidth
+                value={context}
+                onChange={() => handleContextChange}
+                onClick={() => setIsEditing(true)}
+                displayEmpty
+              >
+                {defaultContexts.map((option, index) => (
+                  <MenuItem key={index} value={option}>
+                    {option}
+                  </MenuItem>
+                ))}
+                <MenuItem value={context}>Custom: {context}</MenuItem>
+              </Select>
+            )}
+            {/* </Box> */}
+
             {/* Settings Icon */}
             <Tooltip title='Writer Settings'>
               <IconButton onClick={() => setShowSumSettings(true)}>

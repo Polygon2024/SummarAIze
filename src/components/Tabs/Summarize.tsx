@@ -52,6 +52,7 @@ const Summarize: React.FC = () => {
   const { darkMode } = useThemeContext();
   const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
+  const [bulletPoints, setBulletPoints] = useState<string[]>([]);
   const [summarizerType, setSummarizerType] = useState<AISummarizerType>(
     AISummarizerType['key-points']
   );
@@ -119,7 +120,7 @@ const Summarize: React.FC = () => {
   };
 
   // Summarising Text Input
-  const handleSummarise = async () => {
+  const handleSummarize = async () => {
     setLoading(true);
     const pageUrl = '';
     try {
@@ -130,6 +131,16 @@ const Summarize: React.FC = () => {
         summary: summary || '',
       };
       setLatestEntry(parsedResult);
+      console.log('pparsedResult', parsedResult);
+
+      // Splitting Dot Points of Summaries
+      const bulletPoints = parsedResult
+        .summary!.split('*')
+        .map((item) => item.trim())
+        .filter((item) => item.length > 0);
+
+      console.log('BP', bulletPoints);
+      setBulletPoints(bulletPoints);
     } catch (error) {
       console.error('Error Summarising:', error);
       setSnackbarMessage('Error Summarising.');
@@ -141,6 +152,7 @@ const Summarize: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log('TEST UE');
     // Create the async function inside the useEffect
     const fetchData = async () => {
       setLoading(true);
@@ -173,31 +185,19 @@ const Summarize: React.FC = () => {
               summary: summary || '',
             };
             setLatestEntry(entry);
-            console.log('Remove openTab');
-            await chrome.storage.local.remove([
-              'openTab',
-              'selectedText',
-              'openUrl',
-            ]);
 
-            console.log('after remove opentab');
+            // Splitting Dot Points of Summaries
+            const bulletPoints = entry
+              .summary!.split('*')
+              .map((item) => item.trim())
+              .filter((item) => item.length > 0);
+
+            console.log('BP', bulletPoints);
+            setBulletPoints(bulletPoints);
+            console.log('Remove openTab');
           }
         } else {
-          // If no selectedText or pageUrl, get the latest entry from local storage
-          const items = await chrome.storage.local.get(null);
-          const entries = Object.values(items);
-
-          if (entries.length === 0) {
-            console.log('No entries found in local storage.');
-            return;
-          }
-
-          // Sort entries by timestamp in descending order to get the latest one
-          entries.sort((a, b) => b.timestamp - a.timestamp);
-          const latest = entries[0];
-
-          setLatestEntry(latest);
-          setEditableText(latest.text);
+          return;
         }
       } catch (error) {
         console.error('Error retrieving data or summarizing:', error);
@@ -205,6 +205,13 @@ const Summarize: React.FC = () => {
         setSnackbarSeverity('error');
         setOpenSnackbar(true);
       } finally {
+        await chrome.storage.local.remove([
+          'openTab',
+          'selectedText',
+          'openUrl',
+        ]);
+
+        console.log('after remove opentab');
         setLoading(false);
       }
     };
@@ -236,7 +243,7 @@ const Summarize: React.FC = () => {
           Summarizer
         </Typography>
 
-        {/* Summarised Text Field */}
+        {/* Summarized Text Field */}
         {loading ? (
           // Loading
           <Box sx={{ width: '100%' }}>
@@ -245,45 +252,63 @@ const Summarize: React.FC = () => {
             <Skeleton />
           </Box>
         ) : (
-          // Summarised Content
-          <TextField
-            fullWidth
-            multiline
-            maxRows={8}
-            variant='outlined'
-            value={latestEntry ? latestEntry.summary : ''}
-            id='summarized'
-            sx={{
-              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
-              '& .MuiInputBase-input': {
-                color: darkMode ? Grays.White : Blue.Blue7,
-                opacity: 1,
-              },
-              '& textarea': {
-                // Hides the typing indicator (caret) for multiline TextField
-                caretColor: 'transparent',
-              },
-            }}
-          />
+          <>
+            {latestEntry && bulletPoints ? (
+              // Summarized Content as a List
+              <Box
+                sx={{
+                  p: 2,
+                  borderRadius: '15px',
+                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                }}
+              >
+                <ul
+                  style={{
+                    paddingLeft: '20px',
+                    listStyleType: 'disc',
+                  }}
+                >
+                  {bulletPoints.map((point, index) => (
+                    <li
+                      key={index}
+                      style={{
+                        marginBottom: '4px',
+                        color: darkMode ? Grays.White : Blue.Blue7,
+                      }}
+                    >
+                      {point}
+                    </li>
+                  ))}
+                </ul>
+              </Box>
+            ) : (
+              <Alert severity='info'>
+                Get started by inserting your text content in the field below to
+                start summarizing
+              </Alert>
+            )}
+          </>
         )}
 
         {/* Link to copy summarized text */}
-        <Box
-          sx={{
-            textAlign: 'right',
-            mt: '0 !important',
-          }}
-        >
-          <Tooltip title='Copy Content'>
-            <IconButton
-              size='small'
-              onClick={() => copyToClipboard(latestEntry!.summary)}
-              disabled={!latestEntry}
-            >
-              <ContentCopy fontSize='inherit' />
-            </IconButton>
-          </Tooltip>
-        </Box>
+        {latestEntry && bulletPoints && (
+          <Box
+            sx={{
+              textAlign: 'right',
+              mt: '0 !important',
+            }}
+          >
+            <Tooltip title='Copy Content'>
+              <IconButton
+                size='small'
+                onClick={() => copyToClipboard(latestEntry!.summary)}
+                disabled={!latestEntry}
+              >
+                <ContentCopy fontSize='inherit' />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        )}
       </Stack>
 
       {/* Bottom section */}
@@ -295,6 +320,7 @@ const Summarize: React.FC = () => {
           flexDirection: 'column',
         }}
       >
+        {/* Prompt Field and Additional Buttons */}
         <Box
           sx={{
             position: 'relative',
@@ -369,7 +395,7 @@ const Summarize: React.FC = () => {
 
             {/* Send Icon */}
             <Tooltip title='Send'>
-              <IconButton disabled={loading} onClick={handleSummarise}>
+              <IconButton disabled={loading} onClick={handleSummarize}>
                 <Send />
               </IconButton>
             </Tooltip>
