@@ -20,19 +20,16 @@ import {
   SelectChangeEvent,
   InputAdornment,
   InputLabel,
-  Switch,
 } from '@mui/material';
 import {
   Check,
   Close,
   ContentCopy,
   Edit,
-  Keyboard,
   Send,
   Tune,
 } from '@mui/icons-material';
 import { writeText } from '../../services/write';
-import { Format, Length, Tone } from '../../interface/WriteEntry.type';
 import { Blue, Grays } from '../../theme/color';
 import { useThemeContext } from '../../context/ThemeContext';
 
@@ -55,7 +52,9 @@ enum AIWriterLength {
 
 const WriterRewriter: React.FC = () => {
   const { darkMode } = useThemeContext();
+  // Choose colors based on darkMode
   const primaryText = darkMode ? Grays.White : Blue.Blue7;
+  const primaryBackground = darkMode ? Grays.Gray4 : Blue.Blue0;
 
   const [defaultContexts, setDefaultContexts] = useState<string[]>([
     'Rewrite this paragraph in simpler words',
@@ -79,11 +78,6 @@ const WriterRewriter: React.FC = () => {
   const [prompt, setPrompt] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [format, setFormat] = useState<Format>('plain-text');
-  const [tone, setTone] = useState<Tone>('neutral');
-  const [length, setLength] = useState<Length>('medium');
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [snackbarSeverity, setSnackbarSeverity] = useState<
     'success' | 'error' | 'info'
   >('success');
@@ -104,7 +98,7 @@ const WriterRewriter: React.FC = () => {
     color: primaryText,
     width: '160px',
     height: '28px',
-    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+    backgroundColor: primaryBackground,
     '& .MuiOutlinedInput-notchedOutline': {
       border: 'none', // Removes the outline
     },
@@ -113,9 +107,9 @@ const WriterRewriter: React.FC = () => {
   const MenuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
+        backgroundColor: primaryBackground,
         '& .MuiMenuItem-root': {
-          color: darkMode ? Grays.White : Blue.Blue7,
+          color: primaryText,
           '&:hover': {
             backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
           },
@@ -207,16 +201,16 @@ const WriterRewriter: React.FC = () => {
     console.log('Handle Rewrite');
     console.log('Prompt', prompt);
     console.log('context', context);
-    console.log('format', format);
-    console.log('tone', tone);
-    console.log('length', length);
+    console.log('format', writerFormat);
+    console.log('tone', writerTone);
+    console.log('length', writerLength);
     try {
       const rewriteOutput = await writeText(
         prompt,
         context,
-        format,
-        tone,
-        length
+        writerFormat,
+        writerTone,
+        writerLength
       );
       setOutput(rewriteOutput);
     } catch (error) {
@@ -332,9 +326,9 @@ const WriterRewriter: React.FC = () => {
                 value={output ? output : ''}
                 id='summarized'
                 sx={{
-                  backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+                  backgroundColor: primaryBackground,
                   '& .MuiInputBase-input': {
-                    color: darkMode ? Grays.White : Blue.Blue7,
+                    color: primaryText,
                     opacity: 1,
                   },
                   '& textarea': {
@@ -433,14 +427,14 @@ const WriterRewriter: React.FC = () => {
                   renderValue={(selected) => selected}
                   sx={{
                     width: 'fit-content',
-                    color: darkMode ? Grays.White : Blue.Blue7,
+                    color: primaryText,
                   }}
                   MenuProps={{
                     PaperProps: {
                       sx: {
                         backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
                         '& .MuiMenuItem-root': {
-                          color: darkMode ? Grays.White : Blue.Blue7,
+                          color: primaryText,
                           '&:hover': {
                             backgroundColor: darkMode
                               ? Grays.Gray5
@@ -455,7 +449,10 @@ const WriterRewriter: React.FC = () => {
                     <MenuItem
                       key={index}
                       value={option}
-                      sx={{ display: 'flex', justifyContent: 'space-between' }}
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                      }}
                     >
                       <span>{option}</span>
                       <IconButton onClick={() => handleEdit(index)}>
@@ -473,7 +470,7 @@ const WriterRewriter: React.FC = () => {
         <Box
           sx={{
             position: 'relative',
-            backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+            backgroundColor: primaryBackground,
             px: 1,
             pt: 1,
             pb: 0.5,
@@ -493,13 +490,13 @@ const WriterRewriter: React.FC = () => {
             placeholder='Enter content here'
             id='prompt'
             sx={{
-              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+              backgroundColor: primaryBackground,
               width: '100%',
               '& .MuiInputBase-root': {
                 borderRadius: '15px',
               },
               '& .MuiInputBase-input': {
-                color: darkMode ? Grays.White : Blue.Blue7,
+                color: primaryText,
               },
               // Removes the border
               '& .MuiOutlinedInput-notchedOutline': {
@@ -558,7 +555,11 @@ const WriterRewriter: React.FC = () => {
           },
         }}
       >
-        <DialogTitle sx={{ color: darkMode ? Grays.White : Blue.Blue7 }}>
+        <DialogTitle
+          sx={{
+            color: primaryText,
+          }}
+        >
           Writer Settings
         </DialogTitle>
         <DialogContent>
@@ -566,7 +567,10 @@ const WriterRewriter: React.FC = () => {
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Tone:
               </Typography>
@@ -593,7 +597,10 @@ const WriterRewriter: React.FC = () => {
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Format:
               </Typography>
@@ -620,7 +627,10 @@ const WriterRewriter: React.FC = () => {
             <Stack spacing={0.5}>
               <Typography
                 variant='body2'
-                sx={{ alignSelf: 'flex-start', color: primaryText }}
+                sx={{
+                  alignSelf: 'flex-start',
+                  color: primaryText,
+                }}
               >
                 Length:
               </Typography>
@@ -645,7 +655,12 @@ const WriterRewriter: React.FC = () => {
             </Stack>
           </Stack>
         </DialogContent>
-        <DialogActions sx={{ display: 'flex', m: 'auto' }}>
+        <DialogActions
+          sx={{
+            display: 'flex',
+            m: 'auto',
+          }}
+        >
           <Button
             variant='contained'
             onClick={() => setShowSumSettings(false)}
