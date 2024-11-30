@@ -56,6 +56,7 @@ enum AIWriterLength {
 const WriterRewriter: React.FC = () => {
   const [defaultContexts, setDefaultContexts] = useState<string[]>([
     'Rewrite this paragraph in simpler words',
+    'Write your own context...',
     'Draft a reply to the message',
     'I am a student of...',
     'Explain the main concept of...',
