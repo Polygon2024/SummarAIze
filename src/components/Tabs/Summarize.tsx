@@ -50,6 +50,8 @@ type LatestEntry = {
 
 const Summarize: React.FC = () => {
   const { darkMode } = useThemeContext();
+  const primaryText = darkMode ? Grays.White : Blue.Blue7;
+
   const [loading, setLoading] = useState(true);
   const [latestEntry, setLatestEntry] = useState<LatestEntry>(null);
   const [bulletPoints, setBulletPoints] = useState<string[]>([]);
@@ -74,18 +76,23 @@ const Summarize: React.FC = () => {
   const [showSumSettings, setShowSumSettings] = useState<boolean>(false);
 
   const SummarizerDropdownStyle = {
-    width: '140px',
+    color: primaryText,
+    width: '200px',
     height: '28px',
+    backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue0,
+    '& .MuiOutlinedInput-notchedOutline': {
+      border: 'none', // Removes the outline
+    },
   };
 
   const MenuProps = {
     PaperProps: {
       sx: {
-        backgroundColor: darkMode ? Grays.Gray4 : Grays.White, // Background color of the dropdown
+        backgroundColor: darkMode ? Grays.Gray4 : Grays.White,
         '& .MuiMenuItem-root': {
-          color: darkMode ? Grays.White : Blue.Blue7, // Text color of dropdown items
+          color: darkMode ? Grays.White : Blue.Blue7,
           '&:hover': {
-            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1, // Hover background color
+            backgroundColor: darkMode ? Grays.Gray5 : Blue.Blue1,
           },
         },
       },
@@ -255,7 +262,7 @@ const Summarize: React.FC = () => {
           sx={{
             width: '100%',
             textAlign: 'center',
-            color: darkMode ? Grays.White : Blue.Blue7,
+            color: primaryText,
           }}
         >
           Summarizer
@@ -439,80 +446,104 @@ const Summarize: React.FC = () => {
           Summarizer Settings
         </DialogTitle>
         <DialogContent>
-          <Stack
-            spacing={2}
-            sx={{
-              alignItems: 'center',
-            }}
-          >
-            <FormControl>
-              <Select
-                labelId='summarizer-type-select-label'
-                id='summarizer-type-select'
-                value={summarizerType}
-                onChange={(e) =>
-                  setSummarizerType(e.target.value as AISummarizerType)
-                }
-                sx={{
-                  ...SummarizerDropdownStyle,
-                  '& .MuiFormControlLabel-label': {
-                    color: darkMode ? Grays.White : Blue.Blue7,
-                  },
-                }}
-                MenuProps={MenuProps}
+          <Stack spacing={2} sx={{ alignItems: 'center' }}>
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AISummarizerType).map((type) => (
-                  <MenuItem key={type} value={type}>
-                    {type}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Type:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='summarizer-type-select-label'
+                  id='summarizer-type-select'
+                  value={summarizerType}
+                  onChange={(e) =>
+                    setSummarizerType(e.target.value as AISummarizerType)
+                  }
+                  sx={{
+                    ...SummarizerDropdownStyle,
+                    '& .MuiFormControlLabel-label': {
+                      color: darkMode ? Grays.White : Blue.Blue7,
+                    },
+                  }}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AISummarizerType).map((type) => (
+                    <MenuItem key={type} value={type}>
+                      {type}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
 
-            <FormControl>
-              <Select
-                labelId='summarizer-format-select-label'
-                id='summarizer-format-select'
-                value={summarizerFormat}
-                onChange={(e) =>
-                  setSummarizerFormat(e.target.value as AISummarizerFormat)
-                }
-                sx={SummarizerDropdownStyle}
-                MenuProps={MenuProps}
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AISummarizerFormat).map((format) => (
-                  <MenuItem key={format} value={format}>
-                    {format}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Format:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='summarizer-format-select-label'
+                  id='summarizer-format-select'
+                  value={summarizerFormat}
+                  onChange={(e) =>
+                    setSummarizerFormat(e.target.value as AISummarizerFormat)
+                  }
+                  sx={SummarizerDropdownStyle}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AISummarizerFormat).map((format) => (
+                    <MenuItem key={format} value={format}>
+                      {format}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
 
-            <FormControl>
-              <Select
-                labelId='summarizer-length-select-label'
-                id='summarizer-length-select'
-                value={summarizerLength}
-                onChange={(e) =>
-                  setSummarizerLength(e.target.value as AISummarizerLength)
-                }
-                sx={SummarizerDropdownStyle}
-                MenuProps={MenuProps}
+            <Stack spacing={0.5}>
+              <Typography
+                variant='body2'
+                sx={{ alignSelf: 'flex-start', color: primaryText }}
               >
-                {Object.values(AISummarizerLength).map((length) => (
-                  <MenuItem key={length} value={length}>
-                    {length}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
+                Length:
+              </Typography>
+              <FormControl>
+                <Select
+                  labelId='summarizer-length-select-label'
+                  id='summarizer-length-select'
+                  value={summarizerLength}
+                  onChange={(e) =>
+                    setSummarizerLength(e.target.value as AISummarizerLength)
+                  }
+                  sx={SummarizerDropdownStyle}
+                  MenuProps={MenuProps}
+                >
+                  {Object.values(AISummarizerLength).map((length) => (
+                    <MenuItem key={length} value={length}>
+                      {length}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
           </Stack>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{ display: 'flex', m: 'auto' }}>
           <Button
             variant='contained'
             color='success'
             onClick={() => setShowSumSettings(false)}
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
+              minWidth: '90px',
+              flexGrow: 1,
+            }}
           >
             Save Settings
           </Button>
@@ -520,6 +551,10 @@ const Summarize: React.FC = () => {
             variant='contained'
             color='error'
             onClick={() => setShowSumSettings(false)}
+            sx={{
+              backgroundColor: darkMode ? Grays.Gray4 : Blue.Blue5,
+              width: 'fit-content',
+            }}
           >
             <Close />
           </Button>
