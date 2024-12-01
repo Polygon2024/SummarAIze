@@ -25,9 +25,7 @@ export const storeWrittenText = async (
     output: output,
   };
 
-  chrome.storage.local.set({ [timestamp]: value }, () => {
-    console.log('Generated text stored:', value);
-  });
+  chrome.storage.local.set({ [timestamp]: value });
 };
 
 export const isWriterAPISupported = () => {
@@ -56,8 +54,6 @@ export const createWriter = async (
       context: context,
       length: length,
     });
-
-    console.log('New writer instantiated with context:', context);
   } else {
     console.log('Using cached writer with context:', context);
   }
@@ -84,11 +80,7 @@ export const writeText = async (
   }
 
   // Use the writer to generate new text with context
-  console.log('Writing');
   const newText = await writer.write(text, { context });
-  console.log('Writing Competed');
-
-  console.log('Return Value', newText);
 
   return newText;
 };

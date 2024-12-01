@@ -66,7 +66,6 @@ const Settings: React.FC = () => {
     const fetchUserSettings = async () => {
       try {
         const userSettings = await getUserSettings();
-        console.log('US', userSettings);
         setTranslationOn(userSettings.translationOn);
         setPreferredLanguage(userSettings.preferredLanguage);
       } catch (error) {

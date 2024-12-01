@@ -149,7 +149,6 @@ const WriterRewriter: React.FC = () => {
                 initContext = 'Rewrite this paragraph in simpler words';
             }
             setContext(initContext);
-            console.log('init cont', initContext);
 
             // Exit Early if context doesn't exist
             if (!initContext) {
@@ -198,12 +197,6 @@ const WriterRewriter: React.FC = () => {
   // Rewriting Content Functions
   const handleRewrite = async () => {
     setLoading(true);
-    console.log('Handle Rewrite');
-    console.log('Prompt', prompt);
-    console.log('context', context);
-    console.log('format', writerFormat);
-    console.log('tone', writerTone);
-    console.log('length', writerLength);
     try {
       const rewriteOutput = await writeText(
         prompt,
