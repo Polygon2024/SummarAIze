@@ -71,22 +71,17 @@ export const summarize = async (
   type: string = 'key-points',
   length: string = 'short'
 ) => {
-  console.log('Summarize Func');
   // Get the current context
   const context = await getPageTitle();
   const title = context;
 
-  console.log('create Summarizer');
   // Create a summarizer only if the context has changed
   const summarizer = await createSummarizer(context, type, length, title);
 
-  console.log('Summarizer Created', summarizer);
   // Perform the summarization
   const summary = await summarizer.summarize(text, {
     context,
   });
-
-  console.log('Summary is: ', summary);
 
   return summary;
 };
@@ -96,7 +91,6 @@ export const handleSummarization = async (
   selectionText: string,
   pageUrl: string
 ) => {
-  console.log('Start Handle Summarize');
   let textToBeSummarized = selectionText;
   // Preferred Language from Settings
   const targetLanguage = await getPreferredLanguage();
@@ -107,7 +101,6 @@ export const handleSummarization = async (
   // if the language of the text and preferred language are different, translate the to the preferred language
   let translatedText: string = '';
 
-  console.log('test 1');
   if (
     languageCode !== targetLanguage &&
     languageCode !== ErrorCode.CannotDetect &&
@@ -117,7 +110,6 @@ export const handleSummarization = async (
     translatedText = await translator.translate(textToBeSummarized);
   }
 
-  console.log('test 2');
   // Translate non-English text into English first (summarisation API limits to English io).
   // we assume the text is English by default (e.g. in case of an error)
   if (
@@ -132,11 +124,8 @@ export const handleSummarization = async (
     textToBeSummarized = await translator.translate(textToBeSummarized);
   }
 
-  console.log('test3');
-
   let summary = await summarize(textToBeSummarized);
 
-  console.log('summary');
   // obtain translation details
   const isTranslationOn = await getTranslationOn();
 
@@ -150,7 +139,6 @@ export const handleSummarization = async (
     summary = await translator.translate(summary);
   }
 
-  console.log('test4');
   const pageTitle = await getPageTitle();
 
   const result = await storeSummary(
@@ -162,6 +150,5 @@ export const handleSummarization = async (
     languageCode
   );
 
-  console.log('result');
   return result;
 };

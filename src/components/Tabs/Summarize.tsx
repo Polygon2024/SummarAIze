@@ -140,7 +140,6 @@ const Summarize: React.FC = () => {
         summary: summary || '',
       };
       setLatestEntry(parsedResult);
-      console.log('pparsedResult', parsedResult);
 
       // Splitting Dot Points of Summaries
       const bulletPoints = parsedResult
@@ -148,7 +147,6 @@ const Summarize: React.FC = () => {
         .map((item) => item.trim())
         .filter((item) => item.length > 0);
 
-      console.log('BP', bulletPoints);
       setBulletPoints(bulletPoints);
     } catch (error) {
       console.error('Error Summarising:', error);
@@ -161,7 +159,6 @@ const Summarize: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log('TEST UE');
     // Create the async function inside the useEffect
     const fetchData = async () => {
       setLoading(true);
@@ -201,9 +198,7 @@ const Summarize: React.FC = () => {
               .map((item) => item.trim())
               .filter((item) => item.length > 0);
 
-            console.log('BP', bulletPoints);
             setBulletPoints(bulletPoints);
-            console.log('Remove openTab');
           }
         } else {
           return;
@@ -238,7 +233,6 @@ const Summarize: React.FC = () => {
           ]);
         }
 
-        console.log('after remove opentab');
         setLoading(false);
       }
     };
