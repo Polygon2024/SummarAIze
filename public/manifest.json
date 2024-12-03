@@ -3,7 +3,7 @@
   "name": "SummarAIze",
   "version": "1.0",
   "description": "AI-powered summarization and translation for research.",
-  "permissions": ["storage", "contextMenus", "session"],
+  "permissions": ["activeTab", "storage", "contextMenus", "session"],
   "background": {
     "service_worker": "background.js",
     "type": "module"
